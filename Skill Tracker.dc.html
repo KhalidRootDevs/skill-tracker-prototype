@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-cb848d22-5c37-41fb-96e7-4e7519785ff4/styles.css">
+<style>
+body{margin:0;background:var(--color-neutral-300);font-family:var(--font-body);color:var(--color-text)}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-600)}
+input,textarea,button{font-family:inherit}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;gap:48px;padding:40px;align-items:flex-start;justify-content:center">
+
+<aside style="width:280px;flex:none;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">Prototype · Sep 2026</div>
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:34px;letter-spacing:-0.02em;line-height:1">Skill Tracker</div>
+    <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800);text-wrap:pretty">Everything is clickable. On Today, swipe a task right to complete it, or tap it to log time.</div>
+  </div>
+  <div style="display:flex;border:1px solid var(--color-divider)">
+    <button onClick="{{ setLight }}" style="flex:1;height:36px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:left;padding:0 12px;background:{{ themeBtn.lightBg }};color:{{ themeBtn.lightFg }}">Light</button>
+    <button onClick="{{ setDark }}" style="flex:1;height:36px;border:none;border-left:1px solid var(--color-divider);cursor:pointer;font-size:13px;font-weight:600;text-align:left;padding:0 12px;background:{{ themeBtn.darkBg }};color:{{ themeBtn.darkFg }}">Dark</button>
+  </div>
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+    <div style="display:flex;flex-direction:column">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:6px;border-bottom:2px solid var(--color-divider)">{{ g.name }}</div>
+      <sc-for list="{{ g.items }}" as="it">
+        <button onClick="{{ it.go }}" style="display:flex;gap:10px;align-items:baseline;text-align:left;border:none;border-bottom:1px solid var(--color-neutral-400);background:{{ it.bg }};color:{{ it.fg }};padding:7px 8px;font-size:13px;cursor:pointer" style-hover="background:var(--color-neutral-200)">
+          <span style="font-size:11px;opacity:0.7;width:18px;flex:none">{{ it.n }}</span><span>{{ it.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </sc-for>
+</aside>
+
+<div style="width:410px;height:864px;flex:none;border-radius:54px;background:#0e0e0f;padding:10px;box-shadow:var(--shadow-lg)">
+<div data-phone="1" data-screen-label="{{ screenLabel }}" style="width:390px;height:844px;border-radius:44px;overflow:hidden;position:relative;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:0 32px 0 36px;font-size:15px;font-weight:600;pointer-events:none">
+    <span>9:41</span>
+    <div style="position:absolute;left:50%;top:11px;width:110px;height:30px;margin-left:-55px;border-radius:20px;background:#0e0e0f"></div>
+    <div style="display:flex;gap:6px;align-items:center"><div style="width:16px;height:10px;background:var(--color-text)"></div><div style="width:24px;height:11px;border:1.5px solid var(--color-text);padding:1px"><div style="width:70%;height:100%;background:var(--color-text)"></div></div></div>
+  </div>
+
+  <!-- ONBOARDING: welcome -->
+  <sc-if value="{{ s.ob1 }}">
+    <div style="position:absolute;inset:0;padding:64px 24px 40px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-heading);font-weight:800;font-size:15px"><div style="width:14px;height:14px;background:var(--color-accent)"></div>Skill Tracker</div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:0">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:36px">
+          <sc-for list="{{ welcomeGrid }}" as="c"><div style="aspect-ratio:1;background:{{ c.bg }}"></div></sc-for>
+        </div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:52px;line-height:0.98;letter-spacing:-0.035em">A little better, every day.</div>
+        <div style="font-size:17px;line-height:1.5;color:var(--color-neutral-800);margin-top:18px;max-width:300px">Pick the skills you want. Get one clear task each day. Watch the streak grow.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button onClick="{{ obNext }}" style="display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 18px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:16px;cursor:pointer" style-hover="background:var(--color-accent-600)"><span>Get started</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button>
+        <button onClick="{{ goHome }}" style="height:52px;padding:0 18px;background:transparent;color:var(--color-text);border:1px solid var(--color-divider);font-weight:600;font-size:15px;text-align:left;cursor:pointer">I already have an account</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ONBOARDING: steps 2–6 shell -->
+  <sc-if value="{{ s.obStep }}">
+    <div style="position:absolute;inset:0;padding:56px 24px 32px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button onClick="{{ obBack }}" style="width:36px;height:36px;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevL }}"></path></svg></button>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:4px"><sc-for list="{{ obSeg }}" as="g"><div style="height:4px;background:{{ g.bg }}"></div></sc-for></div>
+        <div style="font-size:12px;font-weight:600;color:var(--color-neutral-700);width:28px;text-align:right">{{ obStepLabel }}</div>
+      </div>
+
+      <div style="flex:1;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:20px">
+        <sc-if value="{{ s.ob2 }}">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:var(--font-heading);font-weight:800;font-size:32px;line-height:1.05;letter-spacing:-0.025em">What do you want to learn?</div><div style="font-size:15px;color:var(--color-neutral-700)">Pick up to 3 to start. Add more anytime.</div></div>
+            <div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-neutral-700)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.search }}"></path></svg><span style="font-size:15px">Search skills</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ interests }}" as="c"><button onClick="{{ c.toggle }}" style="height:40px;padding:0 14px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">{{ c.label }}</button></sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ s.ob3 }}">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:var(--font-heading);font-weight:800;font-size:32px;line-height:1.05;letter-spacing:-0.025em">What does done look like?</div><div style="font-size:15px;color:var(--color-neutral-700)">We shape milestones around this. Choose any.</div></div>
+            <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+              <sc-for list="{{ goals }}" as="c"><button onClick="{{ c.toggle }}" style="display:flex;align-items:center;gap:14px;padding:16px 4px;border:none;border-bottom:1px solid var(--color-divider);background:transparent;color:var(--color-text);text-align:left;cursor:pointer"><div style="width:22px;height:22px;flex:none;border:2px solid {{ c.bd }};background:{{ c.bg }};color:var(--color-bg);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="{{ c.check }}"></path></svg></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">{{ c.label }}</span><span style="font-size:13px;color:var(--color-neutral-700)">{{ c.sub }}</span></div></button></sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ s.ob4 }}">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:var(--font-heading);font-weight:800;font-size:32px;line-height:1.05;letter-spacing:-0.025em">How much time per week?</div><div style="font-size:15px;color:var(--color-neutral-700)">Be honest. Consistency beats volume.</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <sc-for list="{{ weekly }}" as="c"><button onClick="{{ c.pick }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:28px;padding:14px;border:2px solid {{ c.bd }};background:{{ c.bg }};color:var(--color-text);cursor:pointer;text-align:left"><span style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">{{ c.tag }}</span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-family:var(--font-heading);font-weight:800;font-size:26px">{{ c.label }}</span><span style="font-size:13px;color:var(--color-neutral-700)">{{ c.sub }}</span></span></button></sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">Learning days</div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"><sc-for list="{{ days }}" as="d"><button onClick="{{ d.toggle }}" style="height:42px;border:1px solid {{ d.bd }};background:{{ d.bg }};color:{{ d.fg }};font-weight:600;font-size:13px;cursor:pointer">{{ d.label }}</button></sc-for></div>
+              <div style="font-size:14px;color:var(--color-neutral-800)">{{ dailyHint }}</div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ s.ob5 }}">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:var(--font-heading);font-weight:800;font-size:32px;line-height:1.05;letter-spacing:-0.025em">Where are you starting?</div><div style="font-size:15px;color:var(--color-neutral-700)">We'll skip what you already know.</div></div>
+            <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+              <sc-for list="{{ levels }}" as="l"><div style="display:flex;flex-direction:column;gap:10px;padding:16px 0;border-bottom:1px solid var(--color-divider)"><span style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ l.skill }}</span><div style="display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--color-divider)"><sc-for list="{{ l.opts }}" as="o"><button onClick="{{ o.pick }}" style="height:40px;border:none;border-right:1px solid var(--color-divider);background:{{ o.bg }};color:{{ o.fg }};font-size:13px;font-weight:600;text-align:left;padding:0 10px;cursor:pointer">{{ o.label }}</button></sc-for></div></div></sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ s.ob6 }}">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px"><div style="font-family:var(--font-heading);font-weight:800;font-size:32px;line-height:1.05;letter-spacing:-0.025em">Why now?</div><div style="font-size:15px;color:var(--color-neutral-700)">We'll show this back to you on slow days.</div></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{ motives }}" as="c"><button onClick="{{ c.pick }}" style="height:40px;padding:0 14px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font-size:14px;font-weight:600;cursor:pointer">{{ c.label }}</button></sc-for></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:var(--color-neutral-700)">In one line</label><textarea style="min-height:96px;padding:12px;font-size:16px;line-height:1.4;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-divider);resize:none;outline:none">Lead the frontend team by next summer.</textarea></div>
+          </div>
+        </sc-if>
+      </div>
+
+      <button onClick="{{ obNext }}" style="display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 18px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:16px;cursor:pointer;flex:none" style-hover="background:var(--color-accent-600)"><span>Continue</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button>
+    </div>
+  </sc-if>
+
+  <!-- ONBOARDING: plan ready -->
+  <sc-if value="{{ s.ob7 }}">
+    <div style="position:absolute;inset:0;padding:64px 24px 32px;display:flex;flex-direction:column;gap:24px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-700)">Plan ready</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:44px;line-height:1;letter-spacing:-0.03em">Your plan is set, Maya.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+        <div style="padding:14px 12px 14px 0;display:flex;flex-direction:column;gap:4px"><span style="font-family:var(--font-heading);font-weight:800;font-size:30px">{{ obSummary.skills }}</span><span style="font-size:12px;color:var(--color-neutral-700)">Skills</span></div>
+        <div style="padding:14px 12px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;gap:4px"><span style="font-family:var(--font-heading);font-weight:800;font-size:30px">{{ obSummary.hours }}</span><span style="font-size:12px;color:var(--color-neutral-700)">Per week</span></div>
+        <div style="padding:14px 0 14px 12px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;gap:4px"><span style="font-family:var(--font-heading);font-weight:800;font-size:30px">{{ obSummary.daily }}</span><span style="font-size:12px;color:var(--color-neutral-700)">Min / day</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <sc-for list="{{ obSkillList }}" as="k"><div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)"><div style="width:36px;height:36px;background:var(--color-surface);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:13px">{{ k.mono }}</div><div style="flex:1;display:flex;flex-direction:column"><span style="font-weight:600;font-size:15px">{{ k.name }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ k.first }}</span></div></div></sc-for>
+      </div>
+      <div style="flex:1"></div>
+      <div style="background:var(--color-text);color:var(--color-bg);padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;opacity:0.75">First task · today</span><span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Build a custom useFetch hook</span><span style="font-size:13px;opacity:0.75">React · 25 min</span></div>
+      <button onClick="{{ goHome }}" style="display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 18px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:16px;cursor:pointer" style-hover="background:var(--color-accent-600)"><span>Open my dashboard</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button>
+    </div>
+  </sc-if>
+
+  <!-- HOME -->
+  <sc-if value="{{ s.home }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">Tuesday, 29 September</span>
+        <div style="display:flex;align-items:center;gap:5px;font-weight:800;font-family:var(--font-heading);font-size:15px;color:{{ streakColor }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.flame }}"></path></svg>{{ streak }}</div>
+      </div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:36px;line-height:1;letter-spacing:-0.03em;margin-top:-8px">Good morning, Maya.</div>
+
+      <sc-if value="{{ hasFocus }}" hint-placeholder-val="{{ true }}">
+        <div style="background:var(--color-text);color:var(--color-bg);padding:18px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-400)">Today's focus · {{ focus.skill }}</span><span style="font-size:12px;opacity:0.7">{{ focus.mins }} min</span></div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1.08;letter-spacing:-0.02em">{{ focus.title }}</div>
+          <div style="font-size:13px;opacity:0.75">{{ focus.context }}</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
+            <button onClick="{{ focus.start }}" style="display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 14px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:15px;cursor:pointer" style-hover="background:var(--color-accent-600)"><span>Log this session</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button>
+            <button onClick="{{ focus.done }}" style="height:48px;padding:0 14px;background:transparent;color:var(--color-bg);border:1px solid var(--color-neutral-600);font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.check }}"></path></svg>Done</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ allDone }}">
+        <div style="background:var(--color-accent-100);padding:18px;display:flex;flex-direction:column;gap:6px;border-top:2px solid var(--color-accent)"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-700)">All done</span><span style="font-family:var(--font-heading);font-weight:800;font-size:24px;color:var(--color-accent-900)">Today's plan is complete.</span><span style="font-size:14px;color:var(--color-accent-800)">Tomorrow: TypeScript generics · 20 min</span></div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+        <div style="padding:14px 10px 14px 0;display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)">Streak</span><span style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1">{{ streak }}<span style="font-size:13px;font-weight:600;color:var(--color-neutral-700)"> days</span></span><div style="display:flex;gap:2px"><sc-for list="{{ weekDots }}" as="d"><div style="flex:1;height:5px;background:{{ d.bg }}"></div></sc-for></div></div>
+        <div style="padding:14px 10px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)">Today</span><span style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1">{{ todayMins }}<span style="font-size:13px;font-weight:600;color:var(--color-neutral-700)">/45m</span></span><div style="height:5px;background:var(--color-neutral-300)"><div style="height:100%;width:{{ goalW }};background:var(--color-accent)"></div></div></div>
+        <div style="padding:14px 0 14px 10px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)">Overall</span><span style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1">49<span style="font-size:13px;font-weight:600;color:var(--color-neutral-700)">%</span></span><div style="height:5px;background:var(--color-neutral-300)"><div style="height:100%;width:49%;background:var(--color-text)"></div></div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px"><span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Today · {{ doneCount }} of 4</span><button onClick="{{ goToday }}" style="border:none;background:none;color:var(--color-accent-700);font-weight:600;font-size:14px;cursor:pointer;padding:0">Open</button></div>
+        <sc-for list="{{ tasks }}" as="t"><div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--color-divider)"><button onClick="{{ t.toggle }}" style="width:24px;height:24px;flex:none;border:2px solid {{ t.boxBd }};background:{{ t.boxBg }};color:var(--color-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="{{ t.check }}"></path></svg></button><div style="flex:1;display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:15px;font-weight:600;text-decoration:{{ t.deco }};color:{{ t.fg }}">{{ t.title }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ t.skill }} · {{ t.mins }} min</span></div></div></sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Continue</span>
+        <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px">
+          <sc-for list="{{ continueCards }}" as="k"><button onClick="{{ k.open }}" style="width:200px;flex:none;background:var(--color-surface);border:none;color:var(--color-text);padding:14px;display:flex;flex-direction:column;gap:14px;text-align:left;cursor:pointer" style-hover="background:var(--color-neutral-200)"><div style="display:flex;justify-content:space-between;width:100%"><div style="width:36px;height:36px;background:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:13px">{{ k.mono }}</div><span style="font-family:var(--font-heading);font-weight:800;font-size:20px">{{ k.pct }}%</span></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:15px">{{ k.name }}</span><span style="font-size:12px;color:var(--color-neutral-700)">Next: {{ k.next }}</span></div><div style="height:4px;width:100%;background:var(--color-neutral-300)"><div style="height:100%;width:{{ k.w }};background:var(--color-text)"></div></div></button></sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;border-top:2px solid var(--color-divider);padding-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-weight:800;font-size:19px">This week</span><span style="font-size:14px;font-weight:600">{{ weekTotal }}</span></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:96px;align-items:end"><sc-for list="{{ weekBars }}" as="b"><div style="height:{{ b.h }};background:{{ b.bg }}"></div></sc-for></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px"><sc-for list="{{ weekBars }}" as="b"><span style="font-size:11px;font-weight:600;color:{{ b.lc }}">{{ b.d }}</span></sc-for></div>
+        <div style="font-size:14px;color:var(--color-neutral-800)">35 min ahead of last week at this point.</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- LOADING -->
+  <sc-if value="{{ s.loading }}">
+    <div style="position:absolute;inset:0;padding:58px 20px 108px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;justify-content:space-between"><div style="width:150px;height:12px;background:var(--color-neutral-200)"></div><div style="width:36px;height:12px;background:var(--color-neutral-200)"></div></div>
+      <div style="width:260px;height:34px;background:var(--color-neutral-200);margin-top:-8px"></div>
+      <div style="height:210px;background:var(--color-neutral-200);padding:18px;display:flex;flex-direction:column;gap:12px"><div style="width:120px;height:10px;background:var(--color-neutral-300)"></div><div style="width:240px;height:24px;background:var(--color-neutral-300)"></div><div style="width:180px;height:24px;background:var(--color-neutral-300)"></div><div style="flex:1"></div><div style="height:48px;background:var(--color-neutral-300)"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;border-top:2px solid var(--color-neutral-300);border-bottom:2px solid var(--color-neutral-300);padding:14px 0"><div style="height:46px;background:var(--color-neutral-200)"></div><div style="height:46px;background:var(--color-neutral-200)"></div><div style="height:46px;background:var(--color-neutral-200)"></div></div>
+      <div style="display:flex;flex-direction:column;gap:14px"><div style="height:14px;width:60%;background:var(--color-neutral-200)"></div><div style="height:14px;width:80%;background:var(--color-neutral-200)"></div><div style="height:14px;width:70%;background:var(--color-neutral-200)"></div></div>
+      <div style="font-size:13px;color:var(--color-neutral-700)">Loading today's plan…</div>
+    </div>
+  </sc-if>
+
+  <!-- ERROR / OFFLINE -->
+  <sc-if value="{{ s.error }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--color-neutral-200);font-size:13px;font-weight:600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.wifiOff }}"></path></svg>Offline. Your changes are saved on this device.</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:36px;line-height:1;letter-spacing:-0.03em">Good morning, Maya.</div>
+      <div style="border-top:2px solid var(--color-accent);padding-top:16px;display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-700)">Sync failed</span>
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:24px;line-height:1.1">We couldn't sync your last session.</span>
+        <span style="font-size:15px;line-height:1.5;color:var(--color-neutral-800)">25 min of React from 8:12 AM is saved locally. Your streak is safe. We'll retry when you're back online.</span>
+        <div style="display:flex;gap:8px;margin-top:6px"><button onClick="{{ goHome }}" style="height:44px;padding:0 16px;background:var(--color-accent);color:var(--color-bg);border:none;font-weight:800;font-family:var(--font-heading);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.refresh }}"></path></svg>Try again</button><button style="height:44px;padding:0 16px;background:transparent;color:var(--color-text);border:1px solid var(--color-divider);font-weight:600;font-size:14px;cursor:pointer">Details</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--color-surface)"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">Still available offline</span><span style="font-size:15px">Today's tasks, notes and timers work without a connection.</span></div>
+    </div>
+  </sc-if>
+
+  <!-- TODAY -->
+  <sc-if value="{{ s.today }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">Tue 29 Sep</span><div style="display:flex;align-items:center;gap:5px;font-weight:800;font-family:var(--font-heading);font-size:15px;color:{{ streakColor }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.flame }}"></path></svg>{{ streak }}</div></div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em;margin-top:-8px">Today</div>
+
+      <sc-if value="{{ allDone }}">
+        <div style="display:flex;gap:18px;align-items:center;padding:18px;background:var(--color-text);color:var(--color-bg)">
+          <svg width="84" height="84" viewBox="0 0 84 84" style="flex:none"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--color-neutral-700)" strokeWidth="8"></circle><circle cx="42" cy="42" r="36" fill="none" stroke="var(--color-accent)" strokeWidth="8" strokeDasharray="226.2" strokeDashoffset="0" transform="rotate(-90 42 42)"></circle></svg>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:var(--font-heading);font-weight:800;font-size:24px">Done for today.</span><span style="font-size:14px;opacity:0.8">{{ todayMins }} min across 3 skills. Streak: {{ streak }} days.</span><span style="font-size:13px;opacity:0.65">Tomorrow: Generics · 20 min</span></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notAllDone }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:10px;border-top:2px solid var(--color-divider);padding-top:14px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-weight:800;font-size:28px">{{ todayMins }}<span style="font-size:15px;color:var(--color-neutral-700)"> / {{ planMins }} min</span></span><span style="font-size:14px;font-weight:600">{{ doneCount }} of 4 done</span></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px"><sc-for list="{{ taskSegs }}" as="g"><div style="height:6px;background:{{ g.bg }}"></div></sc-for></div>
+          <span style="font-size:13px;color:var(--color-neutral-700)">Swipe right to complete · tap to log time</span>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;border-top:1px solid var(--color-divider);margin:0 -20px">
+        <sc-for list="{{ tasks }}" as="t">
+          <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--color-divider)">
+            <div style="position:absolute;inset:0;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;gap:8px;padding-left:20px;font-family:var(--font-heading);font-weight:800;font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.check }}"></path></svg>{{ t.swipeLabel }}</div>
+            <div onPointerDown="{{ t.down }}" onPointerMove="{{ t.move }}" onPointerUp="{{ t.up }}" onPointerLeave="{{ t.leave }}" style="position:relative;background:var(--color-bg);display:flex;gap:14px;align-items:flex-start;padding:16px 20px;touch-action:pan-y;user-select:none;cursor:grab;transform:translateX({{ t.dx }}px);transition:{{ t.tr }}">
+              <button onClick="{{ t.toggle }}" onPointerDown="{{ stop }}" style="width:26px;height:26px;flex:none;border:2px solid {{ t.boxBd }};background:{{ t.boxBg }};color:var(--color-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin-top:1px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="{{ t.check }}"></path></svg></button>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0">
+                <span style="font-size:16px;font-weight:600;line-height:1.25;text-decoration:{{ t.deco }};color:{{ t.fg }}">{{ t.title }}</span>
+                <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--color-neutral-700)"><span style="font-weight:600;color:var(--color-text)">{{ t.skill }}</span><span style="display:flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.clock }}"></path></svg>{{ t.mins }} min</span><span style="padding:2px 7px;background:{{ t.priBg }};color:{{ t.priFg }};font-weight:600">{{ t.pri }}</span></div>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="margin-top:4px;flex:none"><path d="{{ i.chevR }}"></path></svg>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Log extra time</span>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--color-divider)"><sc-for list="{{ quickLog }}" as="q"><button onClick="{{ q.open }}" style="height:48px;border:none;border-right:1px solid var(--color-divider);background:transparent;color:var(--color-text);font-weight:800;font-family:var(--font-heading);font-size:15px;text-align:left;padding:0 12px;cursor:pointer" style-hover="background:var(--color-neutral-200)">+{{ q.m }}m</button></sc-for></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;border-top:2px solid var(--color-divider);padding-top:14px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Quick reflection</span>
+        <span style="font-size:14px;color:var(--color-neutral-800)">How did today's learning feel?</span>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"><sc-for list="{{ reflect }}" as="r"><button onClick="{{ r.pick }}" style="height:44px;border:1px solid {{ r.bd }};background:{{ r.bg }};color:{{ r.fg }};font-weight:600;font-size:14px;text-align:left;padding:0 12px;cursor:pointer">{{ r.label }}</button></sc-for></div>
+        <textarea placeholder="One thing that clicked, or didn't…" style="min-height:76px;padding:12px;font-size:15px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-divider);resize:none;outline:none"></textarea>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- SESSION COMPLETE -->
+  <sc-if value="{{ s.sessionDone }}">
+    <div style="position:absolute;inset:0;padding:60px 20px 28px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">Session logged</span><button onClick="{{ goHome }}" style="width:36px;height:36px;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.x }}"></path></svg></button></div>
+      <div style="background:var(--color-accent);color:var(--color-bg);padding:20px 20px 16px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between"><span style="font-family:var(--font-heading);font-weight:800;font-size:132px;line-height:0.8;letter-spacing:-0.05em">{{ streak }}</span><span style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1.05;text-align:right">day<br>streak</span></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"><sc-for list="{{ weekDotsLbl }}" as="d"><div style="display:flex;flex-direction:column;gap:5px"><div style="height:22px;background:{{ d.bg }}"></div><span style="font-size:11px;font-weight:600">{{ d.d }}</span></div></sc-for></div>
+      </div>
+      <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--color-divider)"><span style="font-size:15px">{{ lastLog.skill }}</span><span style="font-family:var(--font-heading);font-weight:800;font-size:15px">+{{ lastLog.mins }} min</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding:14px 0;border-bottom:1px solid var(--color-divider)"><div style="display:flex;justify-content:space-between"><span style="font-size:15px">Milestone 4 · Custom hooks</span><span style="font-weight:600;font-size:14px">3 / 5</span></div><div style="height:5px;background:var(--color-neutral-300)"><div style="height:100%;width:60%;background:var(--color-text)"></div></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding:14px 0;border-bottom:1px solid var(--color-divider)"><div style="display:flex;justify-content:space-between"><span style="font-size:15px">Daily goal</span><span style="font-weight:600;font-size:14px">{{ todayMins }} / 45 min</span></div><div style="height:5px;background:var(--color-neutral-300)"><div style="height:100%;width:{{ goalW }};background:var(--color-accent)"></div></div></div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-if value="{{ hasFocus }}"><button onClick="{{ goToday }}" style="display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 18px;background:var(--color-text);color:var(--color-bg);border:none;cursor:pointer;text-align:left"><span style="display:flex;flex-direction:column"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7">Up next</span><span style="font-family:var(--font-heading);font-weight:800;font-size:15px">{{ focus.title }} · {{ focus.mins }}m</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button></sc-if>
+        <button onClick="{{ goHome }}" style="height:52px;padding:0 18px;background:transparent;color:var(--color-text);border:1px solid var(--color-divider);font-weight:600;font-size:15px;text-align:left;cursor:pointer">Back to home</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- SKILLS -->
+  <sc-if value="{{ s.skills }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em">Skills</div><button onClick="{{ goCreate }}" style="width:44px;height:44px;background:var(--color-accent);color:var(--color-bg);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--color-accent-600)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.plus }}"></path></svg></button></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--color-divider)"><sc-for list="{{ filters }}" as="f"><button onClick="{{ f.pick }}" style="height:40px;border:none;border-right:1px solid var(--color-divider);background:{{ f.bg }};color:{{ f.fg }};font-weight:600;font-size:13px;text-align:left;padding:0 12px;cursor:pointer">{{ f.label }} <span style="opacity:0.65">{{ f.n }}</span></button></sc-for></div>
+      <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+        <sc-for list="{{ skillList }}" as="k">
+          <button onClick="{{ k.open }}" style="display:flex;flex-direction:column;gap:10px;padding:16px 0;border:none;border-bottom:1px solid var(--color-divider);background:transparent;color:var(--color-text);text-align:left;cursor:pointer" style-hover="background:var(--color-neutral-100)">
+            <div style="display:flex;align-items:center;gap:12px;width:100%">
+              <div style="width:44px;height:44px;flex:none;background:{{ k.iconBg }};color:{{ k.iconFg }};display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:15px">{{ k.mono }}</div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-family:var(--font-heading);font-weight:800;font-size:17px">{{ k.name }}</span><span style="font-size:13px;color:var(--color-neutral-700)">{{ k.levelLine }}</span></div>
+              <span style="font-family:var(--font-heading);font-weight:800;font-size:22px">{{ k.pctLabel }}</span>
+            </div>
+            <div style="height:4px;width:100%;background:var(--color-neutral-300)"><div style="height:100%;width:{{ k.w }};background:{{ k.barBg }}"></div></div>
+            <div style="display:flex;gap:14px;font-size:12px;color:var(--color-neutral-700);width:100%"><span style="display:flex;align-items:center;gap:4px;color:{{ k.streakFg }};font-weight:600"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.flame }}"></path></svg>{{ k.streakLabel }}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ k.nextLine }}</span></div>
+          </button>
+        </sc-for>
+      </div>
+      <button onClick="{{ goPaywall }}" style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--color-surface);border:none;color:var(--color-text);text-align:left;cursor:pointer"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:14px">6 of 6 skills on Free</span><span style="font-size:13px;color:var(--color-neutral-700)">Pro removes the limit and adds custom categories.</span></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevR }}"></path></svg></button>
+    </div>
+  </sc-if>
+
+  <!-- SKILLS EMPTY -->
+  <sc-if value="{{ s.emptySkills }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:24px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em">Skills</div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding:24px 0;border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+        <div style="display:grid;grid-template-columns:repeat(3,44px);gap:6px"><div style="height:44px;border:2px dashed var(--color-neutral-400)"></div><div style="height:44px;border:2px dashed var(--color-neutral-400)"></div><div style="height:44px;background:var(--color-accent)"></div></div>
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:28px;line-height:1.05">No skills yet.</span>
+        <span style="font-size:15px;line-height:1.5;color:var(--color-neutral-800)">Add one skill to start. You can plan the rest later.</span>
+        <button onClick="{{ goCreate }}" style="display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 16px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:15px;cursor:pointer;margin-top:6px"><span>Add a skill</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.plus }}"></path></svg></button>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:8px">Or start from a template</span>
+        <sc-for list="{{ templates }}" as="t"><button onClick="{{ t.go }}" style="display:flex;align-items:center;gap:12px;padding:14px 0;border:none;border-top:1px solid var(--color-divider);background:transparent;color:var(--color-text);text-align:left;cursor:pointer"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:15px">{{ t.name }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ t.meta }}</span></span><sc-if value="{{ t.pro }}"><span style="font-size:11px;font-weight:600;padding:3px 8px;background:var(--color-accent-100);color:var(--color-accent-800)">Pro</span></sc-if><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevR }}"></path></svg></button></sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- SKILL DETAIL -->
+  <sc-if value="{{ s.skill }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:56px 20px 176px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ goSkills }}" style="display:flex;align-items:center;gap:2px;border:none;background:none;color:var(--color-text);font-weight:600;font-size:15px;cursor:pointer;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevL }}"></path></svg>Skills</button><span style="font-size:12px;color:var(--color-neutral-700)">{{ sk.cat }}</span></div>
+      <div style="display:flex;align-items:center;gap:14px"><div style="width:56px;height:56px;background:var(--color-text);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:19px">{{ sk.mono }}</div><div style="display:flex;flex-direction:column"><span style="font-family:var(--font-heading);font-weight:800;font-size:34px;line-height:1;letter-spacing:-0.025em">{{ sk.name }}</span><span style="font-size:13px;color:var(--color-neutral-700);margin-top:4px">{{ sk.since }}</span></div></div>
+
+      <sc-if value="{{ sk.completed }}">
+        <div style="background:var(--color-accent-100);border-top:2px solid var(--color-accent);padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-700)">Skill completed</span><span style="font-family:var(--font-heading);font-weight:800;font-size:20px;color:var(--color-accent-900)">Advanced reached on 14 Aug.</span><span style="font-size:14px;color:var(--color-accent-800)">32 h over 11 weeks. Nicely done.</span></div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:150px minmax(0,1fr);border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+        <div style="padding:16px 16px 16px 0;position:relative;display:flex;align-items:center;justify-content:center">
+          <svg width="132" height="132" viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--color-neutral-300)" strokeWidth="12"></circle><circle cx="66" cy="66" r="56" fill="none" stroke="var(--color-accent)" strokeWidth="12" strokeDasharray="351.9" strokeDashoffset="{{ sk.ringOff }}" transform="rotate(-90 66 66)"></circle></svg>
+          <div style="position:absolute;inset:0;padding-right:16px;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-heading);font-weight:800;font-size:34px;line-height:1">{{ sk.pct }}%</span><span style="font-size:11px;color:var(--color-neutral-700)">to target</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-left:1px solid var(--color-divider)">
+          <div style="padding:14px 10px;border-bottom:1px solid var(--color-divider);display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:var(--color-neutral-700)">Current</span><span style="font-weight:800;font-family:var(--font-heading);font-size:14px">{{ sk.level }}</span></div>
+          <div style="padding:14px 10px;border-bottom:1px solid var(--color-divider);border-left:1px solid var(--color-divider);display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:var(--color-neutral-700)">Target</span><span style="font-weight:800;font-family:var(--font-heading);font-size:14px">{{ sk.target }}</span></div>
+          <div style="padding:14px 10px;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:var(--color-neutral-700)">Streak</span><span style="font-weight:800;font-family:var(--font-heading);font-size:14px">{{ sk.streak }} days</span></div>
+          <div style="padding:14px 10px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:var(--color-neutral-700)">Logged</span><span style="font-weight:800;font-family:var(--font-heading);font-size:14px">{{ sk.hours }} h</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Milestones · {{ sk.doneN }}/{{ sk.totalN }}</span><button onClick="{{ goRoadmap }}" style="border:none;background:none;color:var(--color-accent-700);font-weight:600;font-size:14px;cursor:pointer;padding:0">Full roadmap</button></div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ sk.milestones }}" as="m">
+            <div style="display:grid;grid-template-columns:20px 1fr;gap:14px">
+              <div style="display:flex;flex-direction:column;align-items:center"><div style="width:18px;height:18px;flex:none;margin-top:2px;background:{{ m.nodeBg }};border:2px solid {{ m.nodeBd }};color:var(--color-bg);display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="{{ m.check }}"></path></svg></div><div style="flex:1;width:2px;background:{{ m.lineBg }};min-height:14px"></div></div>
+              <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:16px"><span style="font-size:15px;font-weight:600;color:{{ m.fg }}">{{ m.title }}</span><span style="font-size:12px;color:{{ m.subFg }}">{{ m.sub }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:19px;padding-bottom:8px">Resources</span>
+        <sc-for list="{{ sk.resources }}" as="r"><div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--color-divider)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="flex:none"><path d="{{ i.book }}"></path></svg><span style="flex:1;font-size:15px">{{ r.t }}</span><span style="font-size:11px;font-weight:600;padding:3px 8px;background:var(--color-neutral-200)">{{ r.k }}</span></div></sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Notes</span>
+        <div style="padding:14px;background:var(--color-surface);font-size:15px;line-height:1.5">{{ sk.note }}</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:19px;padding-bottom:8px">Activity</span>
+        <sc-for list="{{ sk.activity }}" as="a"><div style="display:grid;grid-template-columns:64px 1fr auto;gap:10px;padding:11px 0;border-top:1px solid var(--color-divider);font-size:14px"><span style="color:var(--color-neutral-700)">{{ a.d }}</span><span>{{ a.t }}</span><span style="font-weight:600">{{ a.m }}</span></div></sc-for>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:84px;padding:12px 20px;background:var(--color-bg);border-top:2px solid var(--color-divider)">
+      <button onClick="{{ sk.cta }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 16px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:16px;cursor:pointer" style-hover="background:var(--color-accent-600)"><span>{{ sk.ctaLabel }}</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.plus }}"></path></svg></button>
+    </div>
+  </sc-if>
+
+  <!-- ROADMAP -->
+  <sc-if value="{{ s.roadmap }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:56px 20px 108px;display:flex;flex-direction:column;gap:22px">
+      <button onClick="{{ goSkill }}" style="display:flex;align-items:center;gap:2px;border:none;background:none;color:var(--color-text);font-weight:600;font-size:15px;cursor:pointer;padding:0;align-self:flex-start"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevL }}"></path></svg>React</button>
+      <div style="display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em">Roadmap</div><span style="font-size:14px;color:var(--color-neutral-700)">12 of 22 milestones · est. 9 weeks to Advanced</span></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px"><sc-for list="{{ stages }}" as="g"><div style="display:flex;flex-direction:column;gap:6px"><div style="height:6px;background:{{ g.bar }}"></div><span style="font-size:10.5px;font-weight:600;color:{{ g.lc }};line-height:1.2">{{ g.short }}</span></div></sc-for></div>
+      <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+        <sc-for list="{{ stages }}" as="g">
+          <div style="border-bottom:1px solid var(--color-divider)">
+            <button onClick="{{ g.toggle }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:16px 0;border:none;background:transparent;color:var(--color-text);text-align:left;cursor:pointer"><span style="font-family:var(--font-heading);font-weight:800;font-size:13px;color:var(--color-neutral-700);width:22px">{{ g.n }}</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-family:var(--font-heading);font-weight:800;font-size:18px;color:{{ g.fg }}">{{ g.name }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ g.meta }}</span></span><span style="font-size:11px;font-weight:600;padding:3px 8px;background:{{ g.tagBg }};color:{{ g.tagFg }}">{{ g.status }}</span></button>
+            <sc-if value="{{ g.open }}">
+              <div style="display:flex;flex-direction:column;padding:0 0 12px 34px">
+                <sc-for list="{{ g.tasks }}" as="t"><div style="display:flex;align-items:center;gap:12px;padding:9px 0"><div style="width:18px;height:18px;flex:none;border:2px solid {{ t.bd }};background:{{ t.bg }};color:var(--color-bg);display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="{{ t.check }}"></path></svg></div><span style="font-size:14px;color:{{ t.fg }};text-decoration:{{ t.deco }}">{{ t.t }}</span></div></sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <button onClick="{{ goPaywall }}" style="display:flex;gap:12px;align-items:flex-start;padding:16px;background:var(--color-text);color:var(--color-bg);border:none;text-align:left;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-400)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="flex:none;margin-top:2px"><path d="{{ i.sparkles }}"></path></svg><span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-family:var(--font-heading);font-weight:800;font-size:16px">Rebuild with AI</span><span style="font-size:13px;opacity:0.75;line-height:1.4">Adjusts milestones to your pace, gaps and target date.</span></span><span style="font-size:11px;font-weight:600;padding:3px 8px;background:var(--color-accent);color:var(--color-bg)">Pro</span></button>
+    </div>
+  </sc-if>
+
+  <!-- CREATE SKILL -->
+  <sc-if value="{{ s.create }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:56px 20px 110px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ goSkills }}" style="width:36px;height:36px;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.x }}"></path></svg></button><span style="font-size:13px;color:var(--color-neutral-700)">Draft saved</span></div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:36px;line-height:1;letter-spacing:-0.03em">New skill</div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:var(--color-neutral-700)">Skill name</label><input value="{{ cName }}" onChange="{{ setName }}" style="height:50px;padding:0 14px;font-size:18px;font-weight:600;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-divider);outline:none"></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><label style="font-size:12px;color:var(--color-neutral-700)">Category</label><div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ cats }}" as="c"><button onClick="{{ c.pick }}" style="height:36px;padding:0 12px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">{{ c.label }}<sc-if value="{{ c.pro }}"><span style="font-size:10px;padding:1px 5px;background:var(--color-accent-100);color:var(--color-accent-800)">Pro</span></sc-if></button></sc-for></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><label style="font-size:12px;color:var(--color-neutral-700)">Current experience</label><div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--color-divider)"><sc-for list="{{ expOpts }}" as="o"><button onClick="{{ o.pick }}" style="height:40px;border:none;border-right:1px solid var(--color-divider);background:{{ o.bg }};color:{{ o.fg }};font-size:13px;font-weight:600;text-align:left;padding:0 8px;cursor:pointer">{{ o.label }}</button></sc-for></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><label style="font-size:12px;color:var(--color-neutral-700)">Target level</label><div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--color-divider)"><sc-for list="{{ tgtOpts }}" as="o"><button onClick="{{ o.pick }}" style="height:40px;border:none;border-right:1px solid var(--color-divider);background:{{ o.bg }};color:{{ o.fg }};font-size:12px;font-weight:600;text-align:left;padding:0 8px;cursor:pointer">{{ o.label }}</button></sc-for></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:var(--color-neutral-700)">Target date</label><div style="height:50px;padding:0 14px;display:flex;align-items:center;font-size:16px;font-weight:600;background:var(--color-surface);border:1px solid var(--color-divider)">31 Mar 2027</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:var(--color-neutral-700)">Weekly commitment</label><div style="height:50px;display:grid;grid-template-columns:44px 1fr 44px;border:1px solid var(--color-divider);background:var(--color-surface)"><button onClick="{{ wkDown }}" style="border:none;border-right:1px solid var(--color-divider);background:transparent;color:var(--color-text);font-size:20px;cursor:pointer">−</button><span style="display:flex;align-items:center;padding-left:12px;font-size:16px;font-weight:800;font-family:var(--font-heading)">{{ cWeekly }} h</span><button onClick="{{ wkUp }}" style="border:none;border-left:1px solid var(--color-divider);background:transparent;color:var(--color-text);font-size:20px;cursor:pointer">+</button></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px"><label style="font-size:12px;color:var(--color-neutral-700)">Milestones</label><span style="font-size:12px;color:var(--color-neutral-700)">{{ cMsCount }}</span></div>
+        <sc-for list="{{ cMilestones }}" as="m"><div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--color-divider)"><span style="font-family:var(--font-heading);font-weight:800;font-size:13px;color:var(--color-neutral-700);width:20px">{{ m.n }}</span><span style="flex:1;font-size:15px">{{ m.t }}</span><button onClick="{{ m.remove }}" style="border:none;background:none;color:var(--color-neutral-600);cursor:pointer;padding:4px;display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.x }}"></path></svg></button></div></sc-for>
+        <button onClick="{{ addMs }}" style="display:flex;align-items:center;gap:8px;height:46px;border:none;border-top:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider);background:transparent;color:var(--color-accent-700);font-weight:600;font-size:14px;text-align:left;padding:0;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.plus }}"></path></svg>Add milestone</button>
+      </div>
+      <button onClick="{{ goPaywall }}" style="display:flex;gap:12px;align-items:flex-start;padding:16px;background:var(--color-text);color:var(--color-bg);border:none;text-align:left;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-400)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="flex:none;margin-top:2px"><path d="{{ i.sparkles }}"></path></svg><span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-family:var(--font-heading);font-weight:800;font-size:16px">Generate roadmap with AI</span><span style="font-size:13px;opacity:0.75;line-height:1.4">5 stages, ~20 milestones, sized to {{ cWeekly }} h a week.</span></span><span style="font-size:11px;font-weight:600;padding:3px 8px;background:var(--color-accent);color:var(--color-bg)">Pro</span></button>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 30px;background:var(--color-bg);border-top:2px solid var(--color-divider)"><button onClick="{{ createSkill }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 16px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:16px;cursor:pointer" style-hover="background:var(--color-accent-600)"><span>Create skill</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button></div>
+  </sc-if>
+
+  <!-- PROGRESS -->
+  <sc-if value="{{ s.progress }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em">Progress</div><div style="display:flex;border:1px solid var(--color-divider)"><sc-for list="{{ ranges }}" as="r"><button onClick="{{ r.pick }}" style="height:34px;padding:0 12px;border:none;background:{{ r.bg }};color:{{ r.fg }};font-size:13px;font-weight:600;cursor:pointer">{{ r.label }}</button></sc-for></div></div>
+      <div style="display:flex;flex-direction:column;gap:4px;border-top:2px solid var(--color-divider);padding-top:14px"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">{{ rng.label }}</span><div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--font-heading);font-weight:800;font-size:48px;line-height:1;letter-spacing:-0.03em">{{ rng.total }}</span><span style="font-size:14px;font-weight:600;color:var(--color-accent-700)">{{ rng.delta }}</span></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:{{ rng.gap }};height:120px;align-items:flex-end"><sc-for list="{{ rng.bars }}" as="b"><div style="flex:1;height:{{ b.h }};background:{{ b.bg }}"></div></sc-for></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:var(--color-neutral-700)"><sc-for list="{{ rng.ticks }}" as="t"><span>{{ t }}</span></sc-for></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--color-divider)">
+        <sc-for list="{{ stats }}" as="st"><div style="padding:14px 0 14px {{ st.pl }};border-bottom:1px solid var(--color-divider);border-left:{{ st.bl }};display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:var(--color-neutral-700)">{{ st.l }}</span><span style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1">{{ st.v }}<span style="font-size:13px;color:var(--color-neutral-700)">{{ st.u }}</span></span></div></sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Skills improved</span>
+        <sc-for list="{{ bySkill }}" as="b"><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:14px"><span style="font-weight:600">{{ b.name }}</span><span style="color:var(--color-neutral-700)">{{ b.v }} · <span style="color:var(--color-accent-700);font-weight:600">{{ b.lvl }}</span></span></div><div style="height:8px;background:var(--color-neutral-200)"><div style="height:100%;width:{{ b.w }};background:var(--color-text)"></div></div></div></sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;border-top:2px solid var(--color-divider);padding-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-weight:800;font-size:19px">Last 18 weeks</span><span style="font-size:12px;color:var(--color-neutral-700)">102 active days</span></div>
+        <div style="display:grid;grid-template-rows:repeat(7,15px);grid-auto-flow:column;grid-auto-columns:15px;gap:3px"><sc-for list="{{ heat }}" as="c"><div style="background:{{ c.bg }}"></div></sc-for></div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-neutral-700)"><span style="margin-right:4px">Less</span><div style="width:12px;height:12px;background:var(--color-neutral-200)"></div><div style="width:12px;height:12px;background:var(--color-accent-200)"></div><div style="width:12px;height:12px;background:var(--color-accent-400)"></div><div style="width:12px;height:12px;background:var(--color-accent)"></div><div style="width:12px;height:12px;background:var(--color-accent-700)"></div><span style="margin-left:4px">More</span></div>
+      </div>
+      <button onClick="{{ goAchievements }}" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border:none;border-top:2px solid var(--color-divider);border-bottom:1px solid var(--color-divider);background:transparent;color:var(--color-text);cursor:pointer;text-align:left"><span style="display:flex;align-items:center;gap:10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.award }}"></path></svg><span style="font-family:var(--font-heading);font-weight:800;font-size:17px">Achievements</span></span><span style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--color-neutral-700)">6 of 10<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevR }}"></path></svg></span></button>
+      <button onClick="{{ goPaywall }}" style="display:flex;flex-direction:column;gap:12px;padding:16px;background:var(--color-surface);border:none;color:var(--color-text);text-align:left;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;width:100%;align-items:center"><span style="font-family:var(--font-heading);font-weight:800;font-size:16px">Detailed insights</span><span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;background:var(--color-accent-100);color:var(--color-accent-800)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.lock }}"></path></svg>Pro</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%;filter:blur(3px);opacity:0.6"><span style="font-size:14px">Best time to learn: 7–8 AM</span><div style="height:8px;width:70%;background:var(--color-neutral-400)"></div><span style="font-size:14px">Retention by skill · 30-day forecast</span><div style="height:8px;width:45%;background:var(--color-neutral-400)"></div></div>
+        <span style="font-size:13px;color:var(--color-neutral-800)">See when you learn best and where you're slipping.</span>
+      </button>
+    </div>
+  </sc-if>
+
+  <!-- ACHIEVEMENTS -->
+  <sc-if value="{{ s.achievements }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:56px 20px 108px;display:flex;flex-direction:column;gap:22px">
+      <button onClick="{{ goProgress }}" style="display:flex;align-items:center;gap:2px;border:none;background:none;color:var(--color-text);font-weight:600;font-size:15px;cursor:pointer;padding:0;align-self:flex-start"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevL }}"></path></svg>Progress</button>
+      <div style="display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em">Achievements</div><span style="font-size:14px;color:var(--color-neutral-700)">6 of 10 earned</span></div>
+      <div style="background:var(--color-accent);color:var(--color-bg);padding:18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:end"><span style="font-family:var(--font-heading);font-weight:800;font-size:88px;line-height:0.8;letter-spacing:-0.05em">7</span><div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Latest · 22 Sep</span><span style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">7-day streak</span></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--color-divider);border-left:1px solid var(--color-divider)">
+        <sc-for list="{{ achievements }}" as="a">
+          <div style="padding:14px;border-right:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider);display:flex;flex-direction:column;gap:14px;min-height:150px">
+            <div style="width:52px;height:52px;background:{{ a.bg }};border:2px solid {{ a.bd }};color:{{ a.fg }};display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:17px">{{ a.mark }}</div>
+            <div style="display:flex;flex-direction:column;gap:2px;flex:1"><span style="font-weight:600;font-size:14px;color:{{ a.tfg }}">{{ a.name }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ a.meta }}</span></div>
+            <sc-if value="{{ a.locked }}"><div style="height:4px;background:var(--color-neutral-300)"><div style="height:100%;width:{{ a.w }};background:var(--color-accent)"></div></div></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- PROFILE -->
+  <sc-if value="{{ s.profile }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;align-items:center;gap:14px"><div style="width:64px;height:64px;background:var(--color-accent-100);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:22px">MC</div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1">Maya Chen</span><span style="font-size:13px;color:var(--color-neutral-700)">Learning since June 2026 · Free plan</span></div></div>
+      <button onClick="{{ goPaywall }}" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--color-text);color:var(--color-bg);border:none;text-align:left;cursor:pointer"><span style="display:flex;flex-direction:column;gap:3px"><span style="font-family:var(--font-heading);font-weight:800;font-size:17px">Try Pro free for 7 days</span><span style="font-size:13px;opacity:0.75">AI roadmaps, unlimited skills, insights.</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button>
+      <sc-for list="{{ settings }}" as="g">
+        <div style="display:flex;flex-direction:column">
+          <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:6px;border-bottom:2px solid var(--color-divider)">{{ g.name }}</span>
+          <sc-for list="{{ g.rows }}" as="r">
+            <div onClick="{{ r.go }}" style="display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid var(--color-divider);cursor:pointer">
+              <span style="flex:1;font-size:15px;color:{{ r.fg }}">{{ r.label }}</span>
+              <sc-if value="{{ r.pro }}"><span style="font-size:11px;font-weight:600;padding:3px 8px;background:var(--color-accent-100);color:var(--color-accent-800)">Pro</span></sc-if>
+              <sc-if value="{{ r.isValue }}"><span style="font-size:14px;color:var(--color-neutral-700)">{{ r.value }}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.chevR }}"></path></svg></sc-if>
+              <sc-if value="{{ r.isToggle }}"><button onClick="{{ r.toggle }}" style="width:44px;height:24px;border:none;padding:2px;background:{{ r.trackBg }};display:flex;justify-content:{{ r.justify }};cursor:pointer"><div style="width:20px;height:20px;background:var(--color-bg)"></div></button></sc-if>
+              <sc-if value="{{ r.isTheme }}"><div style="display:flex;border:1px solid var(--color-divider)"><sc-for list="{{ themeOpts }}" as="o"><button onClick="{{ o.pick }}" style="height:30px;padding:0 10px;border:none;background:{{ o.bg }};color:{{ o.fg }};font-size:12px;font-weight:600;cursor:pointer">{{ o.label }}</button></sc-for></div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- PAYWALL -->
+  <sc-if value="{{ s.paywall }}">
+    <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:56px 20px 200px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="display:flex;align-items:center;gap:8px;font-family:var(--font-heading);font-weight:800;font-size:14px"><div style="width:12px;height:12px;background:var(--color-accent)"></div>Skill Tracker Pro</span><button onClick="{{ goBack }}" style="width:36px;height:36px;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.x }}"></path></svg></button></div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:40px;line-height:1;letter-spacing:-0.03em">A plan that adjusts to you.</div>
+      <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+        <sc-for list="{{ proFeatures }}" as="f"><div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--color-divider)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style="flex:none;margin-top:2px"><path d="{{ i.check }}"></path></svg><span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:600;font-size:15px">{{ f.t }}</span><span style="font-size:13px;color:var(--color-neutral-700)">{{ f.d }}</span></span></div></sc-for>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;padding:14px 20px 28px;background:var(--color-bg);border-top:2px solid var(--color-divider);display:flex;flex-direction:column;gap:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><sc-for list="{{ plans }}" as="p"><button onClick="{{ p.pick }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border:2px solid {{ p.bd }};background:{{ p.bg }};color:var(--color-text);text-align:left;cursor:pointer;position:relative"><span style="font-size:12px;font-weight:600;color:var(--color-neutral-700)">{{ p.name }}</span><span style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ p.price }}</span><span style="font-size:12px;color:{{ p.subFg }};font-weight:600">{{ p.sub }}</span></button></sc-for></div>
+      <button onClick="{{ goBack }}" style="display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 16px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:16px;cursor:pointer" style-hover="background:var(--color-accent-600)"><span>Start 7-day free trial</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.arrow }}"></path></svg></button>
+      <span style="font-size:12px;color:var(--color-neutral-700)">{{ planNote }}</span>
+    </div>
+  </sc-if>
+
+  <!-- TOAST -->
+  <sc-if value="{{ hasToast }}">
+    <div style="position:absolute;left:12px;right:12px;bottom:96px;z-index:8;background:var(--color-text);color:var(--color-bg);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-lg)"><div style="width:28px;height:28px;background:var(--color-accent);display:flex;align-items:center;justify-content:center;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.flame }}"></path></svg></div><span style="flex:1;display:flex;flex-direction:column"><span style="font-weight:600;font-size:14px">{{ toast.title }}</span><span style="font-size:12px;opacity:0.75">{{ toast.sub }}</span></span><button onClick="{{ undo }}" style="border:none;background:none;color:var(--color-accent-400);font-weight:600;font-size:13px;cursor:pointer">Undo</button></div>
+  </sc-if>
+
+  <!-- TAB BAR -->
+  <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:0;right:0;bottom:0;height:84px;z-index:6;background:var(--color-bg);border-top:2px solid var(--color-divider);display:grid;grid-template-columns:repeat(5,1fr);padding:0 4px">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><button onClick="{{ t.go }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:0 10px;padding-top:10px;border:none;border-top:3px solid {{ t.bar }};margin-top:-2px;background:transparent;color:{{ t.fg }};cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ t.d }}"></path></svg><span style="font-size:11px;font-weight:{{ t.fw }}">{{ t.label }}</span></button></sc-for>
+    </div>
+  </sc-if>
+
+  <!-- LOG SHEET -->
+  <sc-if value="{{ hasSheet }}">
+    <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:9;background:color-mix(in srgb, var(--color-neutral-900) 50%, transparent)"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;z-index:10;background:var(--color-bg);border-top:3px solid var(--color-accent);padding:18px 20px 32px;display:flex;flex-direction:column;gap:18px;box-shadow:var(--shadow-lg)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-700)">Log progress · {{ sheet.skill }}</span><span style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1.1">{{ sheet.title }}</span></div><button onClick="{{ closeSheet }}" style="width:36px;height:36px;flex:none;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.x }}"></path></svg></button></div>
+      <div style="display:grid;grid-template-columns:52px 1fr 52px;border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)"><button onClick="{{ minDown }}" style="height:80px;border:none;border-right:1px solid var(--color-divider);background:transparent;color:var(--color-text);font-size:26px;cursor:pointer">−</button><div style="display:flex;align-items:baseline;gap:6px;padding:0 16px;align-self:center"><span style="font-family:var(--font-heading);font-weight:800;font-size:52px;line-height:1;letter-spacing:-0.03em">{{ logMins }}</span><span style="font-size:15px;font-weight:600;color:var(--color-neutral-700)">min</span></div><button onClick="{{ minUp }}" style="height:80px;border:none;border-left:1px solid var(--color-divider);background:transparent;color:var(--color-text);font-size:26px;cursor:pointer">+</button></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px"><sc-for list="{{ minChips }}" as="c"><button onClick="{{ c.pick }}" style="height:38px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font-weight:600;font-size:13px;cursor:pointer;text-align:left;padding:0 10px">{{ c.m }}</button></sc-for></div>
+      <sc-if value="{{ sheet.hasTask }}"><button onClick="{{ toggleSheetComplete }}" style="display:flex;align-items:center;gap:12px;border:none;background:transparent;color:var(--color-text);padding:0;cursor:pointer;text-align:left"><div style="width:24px;height:24px;flex:none;border:2px solid {{ sheet.boxBd }};background:{{ sheet.boxBg }};color:var(--color-bg);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="{{ sheet.check }}"></path></svg></div><span style="font-size:15px;font-weight:600">Mark task complete</span></button></sc-if>
+      <input placeholder="Add a note (optional)" style="height:46px;padding:0 12px;font-size:15px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-divider);outline:none">
+      <button onClick="{{ saveLog }}" style="display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 16px;background:var(--color-accent);color:var(--color-bg);border:none;font-family:var(--font-heading);font-weight:800;font-size:16px;cursor:pointer" style-hover="background:var(--color-accent-600)"><span>Save · {{ logMins }} min</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="{{ i.check }}"></path></svg></button>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute;bottom:8px;left:50%;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--color-text);z-index:11;opacity:0.9"></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;start&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;onboarding&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const I = {
+  house:'M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8 M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+  layers:'M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12 M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17',
+  calCheck:'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z M9 16l2 2 4-4',
+  chart:'M3 3v16a2 2 0 0 0 2 2h16 M18 17V9 M13 17V5 M8 17v-3',
+  user:'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2 M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',
+  flame:'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z',
+  check:'M20 6 9 17l-5-5', plus:'M5 12h14 M12 5v14', chevR:'m9 18 6-6-6-6', chevL:'m15 18-6-6 6-6', x:'M18 6 6 18 M6 6l12 12',
+  arrow:'M5 12h14 M12 5l7 7-7 7', clock:'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z M12 6v6l4 2',
+  sparkles:'M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z',
+  lock:'M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z M7 11V7a5 5 0 0 1 10 0v4',
+  award:'m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526 M18 8a6 6 0 1 1-12 0 6 6 0 0 1 12 0z',
+  wifiOff:'M12 20h.01 M8.5 16.429a5 5 0 0 1 7 0 M5 12.859a10 10 0 0 1 5.17-2.69 M19 12.859a10 10 0 0 0-2.007-1.523 M2 8.82a15 15 0 0 1 4.177-2.643 M22 8.82a15 15 0 0 0-11.288-3.764 M2 2l20 20',
+  search:'m21 21-4.34-4.34 M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0z',
+  book:'M12 7v14 M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z',
+  refresh:'M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8 M21 3v5h-5 M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16 M8 16H3v5'
+};
+const DARK = {
+  '--color-bg':'#151413','--color-surface':'#211f1e','--color-text':'#f1eeec',
+  '--color-divider':'color-mix(in srgb, #f1eeec 34%, transparent)','--color-accent':'#ff4a2b',
+  '--color-accent-100':'#3a1812','--color-accent-200':'#5a2016','--color-accent-400':'#ff9783','--color-accent-600':'#ff6a50',
+  '--color-accent-700':'#ff9d8a','--color-accent-800':'#ffc4b8','--color-accent-900':'#ffe0d9',
+  '--color-neutral-100':'#1b1a19','--color-neutral-200':'#2a2827','--color-neutral-300':'#3a3736','--color-neutral-400':'#55514f',
+  '--color-neutral-600':'#9b9797','--color-neutral-700':'#b3afae','--color-neutral-800':'#d7d3d3','--color-neutral-900':'#000000'
+};
+const TASKS = [
+  { id:'t3', title:'Build a custom useFetch hook', skill:'React', mins:25, pri:'High', ctx:'Milestone 4 of 7 · Custom hooks' },
+  { id:'t1', title:'Read: useReducer patterns', skill:'React', mins:15, pri:'Medium', ctx:'Milestone 4 of 7 · Custom hooks' },
+  { id:'t2', title:'Vocabulary review — 40 cards', skill:'Spanish', mins:10, pri:'Medium', ctx:'B1 → B2 · Subjunctive mood' },
+  { id:'t4', title:'Generics exercises 3–5', skill:'TypeScript', mins:20, pri:'Low', ctx:'Fundamentals · Generics & constraints' }
+];
+const SK = [
+  { id:'react', name:'React', mono:'Re', cat:'Development', level:'Intermediate', target:'Advanced', pct:62, streak:12, hours:38, next:'Custom hooks', status:'active', since:'Started 2 Jun · 3 h / week',
+    ms:['JSX & components','State and props','Effects & lifecycle','Custom hooks','Context & reducers','Performance','Testing with RTL'],
+    res:[{t:'react.dev — Hooks reference',k:'Docs'},{t:'Advanced React Patterns',k:'Course'},{t:'useFetch from scratch',k:'Video'}],
+    note:'Cleanup functions run before the next effect, not just on unmount. Write the abort logic first.',
+    act:[{d:'Today',t:'useReducer patterns',m:'15m'},{d:'Mon',t:'Custom hooks intro',m:'30m'},{d:'Sun',t:'Refactor todo app',m:'45m'},{d:'Sat',t:'Effects deep dive',m:'25m'}] },
+  { id:'ts', name:'TypeScript', mono:'Ts', cat:'Development', level:'Fundamentals', target:'Advanced', pct:48, streak:9, hours:21, next:'Generics & constraints', status:'active', since:'Started 14 Jul · 2 h / week',
+    ms:['Types & inference','Unions & narrowing','Generics & constraints','Utility types','Declaration files','Advanced patterns'],
+    res:[{t:'TypeScript Handbook',k:'Docs'},{t:'Type Challenges',k:'Practice'}], note:'Narrow first, assert never. If I reach for `as`, the type is wrong upstream.',
+    act:[{d:'Mon',t:'Discriminated unions',m:'20m'},{d:'Sun',t:'Narrowing drills',m:'20m'}] },
+  { id:'ux', name:'UI/UX Design', mono:'Ux', cat:'Design', level:'Intermediate', target:'Advanced', pct:71, streak:4, hours:44, next:'Design systems audit', status:'active', since:'Started 3 Apr · 2 h / week',
+    ms:['Visual hierarchy','Layout & grids','Typography','Interaction patterns','Design systems audit','Usability testing'],
+    res:[{t:'Refactoring UI',k:'Book'},{t:'Grid systems primer',k:'Article'}], note:'Every screen should have one obvious next action. Check with a squint test.',
+    act:[{d:'Fri',t:'Type scale study',m:'40m'},{d:'Wed',t:'Grid exercise',m:'30m'}] },
+  { id:'es', name:'Spanish', mono:'Es', cat:'Language', level:'B1', target:'B2', pct:55, streak:12, hours:57, next:'Subjunctive mood', status:'active', since:'Started 10 Jan · 4 h / week',
+    ms:['Present & past','Imperfect vs preterite','Future & conditional','Subjunctive mood','Conversation practice','B2 mock exam'],
+    res:[{t:'Anki deck — 2,000 words',k:'Cards'},{t:'Weekly tutor session',k:'Live'}], note:'Subjunctive after emotions and wishes: Espero que vengas.',
+    act:[{d:'Mon',t:'Vocabulary review',m:'10m'},{d:'Sun',t:'Tutor session',m:'45m'}] },
+  { id:'py', name:'Python', mono:'Py', cat:'Development', level:'Beginner', target:'Intermediate', pct:34, streak:0, hours:12, next:'Functions & modules', status:'active', since:'Started 20 Aug · 1 h / week',
+    ms:['Syntax & types','Control flow','Functions & modules','Files & data','Small scripts project'],
+    res:[{t:'Automate the Boring Stuff',k:'Book'}], note:'List comprehensions read left to right: output, loop, filter.',
+    act:[{d:'18 Sep',t:'Control flow drills',m:'30m'}] },
+  { id:'ps', name:'Public Speaking', mono:'Ps', cat:'Career', level:'Beginner', target:'Intermediate', pct:22, streak:2, hours:6, next:'Record a 3-min talk', status:'active', since:'Started 1 Sep · 1 h / week',
+    ms:['Structure a talk','Record a 3-min talk','Pacing & pauses','Handle Q&A','Give a team talk'],
+    res:[{t:'Talk structure template',k:'Guide'}], note:'Pause instead of filler. Silence feels longer to me than to them.',
+    act:[{d:'Sun',t:'Outline first talk',m:'20m'}] },
+  { id:'git', name:'Git & GitHub', mono:'Gt', cat:'Development', level:'Advanced', target:'Advanced', pct:100, streak:0, hours:32, next:'', status:'completed', since:'2 Jun – 14 Aug · 3 h / week',
+    ms:['Commits & branches','Merging & rebasing','Pull requests','Resolving conflicts','Advanced history'],
+    res:[{t:'Pro Git',k:'Book'}], note:'Rebase local work, merge shared work.', act:[{d:'14 Aug',t:'Interactive rebase',m:'40m'}] },
+  { id:'ph', name:'Photography', mono:'Ph', cat:'Creative', level:'New', target:'Intermediate', pct:0, streak:0, hours:0, next:'Starts 1 Nov', status:'planned', since:'Planned · 1 h / week', ms:['Exposure triangle','Composition','Light'], res:[], note:'Start after the Spanish exam.', act:[] },
+  { id:'jp', name:'Japanese', mono:'Ja', cat:'Language', level:'New', target:'N5', pct:0, streak:0, hours:0, next:'Starts Jan 2027', status:'planned', since:'Planned · 2 h / week', ms:['Hiragana','Katakana','Basic grammar'], res:[], note:'Hiragana first, two weeks max.', act:[] }
+];
+const ROAD = [
+  { name:'Beginner', short:'Begin', tasks:['JSX & components','Props and composition','Rendering lists'] },
+  { name:'Fundamentals', short:'Fund.', tasks:['State with useState','Effects & cleanup','Forms and controlled inputs'] },
+  { name:'Intermediate', short:'Inter.', tasks:['Custom hooks','useReducer patterns','Context without prop drilling','Build a custom useFetch hook','Error boundaries'] },
+  { name:'Advanced', short:'Adv.', tasks:['Memoization & profiling','Suspense and data loading','Testing with RTL'] },
+  { name:'Mastery', short:'Mastery', tasks:['Ship a production app','Teach a concept','Contribute to open source'] }
+];
+const SCREENS = [
+  { name:'Onboarding', items:[['ob1','Welcome'],['ob2','Interests'],['ob3','Goals'],['ob4','Weekly time'],['ob5','Experience'],['ob6','Motivation'],['ob7','Plan ready']] },
+  { name:'App', items:[['home','Home'],['today','Today'],['log','Log progress'],['sessionDone','Session logged'],['skills','Skills'],['skill','Skill detail'],['roadmap','Roadmap'],['create','Create skill'],['progress','Progress'],['achievements','Achievements'],['profile','Profile'],['paywall','Pro paywall']] },
+  { name:'States', items:[['loading','Loading'],['error','Offline / error'],['emptySkills','Empty skills'],['todayDone','Day complete'],['skillComplete','Skill completed']] }
+];
+const LABELS = {}; let n = 0; SCREENS.forEach(g => g.items.forEach(([k,l]) => { n++; LABELS[k] = String(n).padStart(2,'0') + ' ' + l; }));
+const TABS = [['home','Home','house'],['skills','Skills','layers'],['today','Today','calCheck'],['progress','Progress','chart'],['profile','Profile','user']];
+const TAB_OF = { home:'home', loading:'home', error:'home', skills:'skills', skill:'skills', roadmap:'skills', emptySkills:'skills', today:'today', progress:'progress', achievements:'progress', profile:'profile' };
+const OB = ['ob1','ob2','ob3','ob4','ob5','ob6','ob7'];
+const A = 'var(--color-accent)', INK = 'var(--color-text)', BG = 'var(--color-bg)', DIV = 'var(--color-divider)';
+
+class Component extends DCLogic {
+  state = {
+    screen: this.props.start === 'onboarding' ? 'ob1' : 'home', jump: null, theme: null, prev: 'home',
+    interests: { React:true, TypeScript:true, Spanish:true }, goals: { 'Build a real project':true, 'Get job-ready':true },
+    weekly: '3–5 h', days: { M:1, T:1, W:1, Th:1, F:1 }, levels: { React:'Some', TypeScript:'New', Spanish:'Some' }, motive: 'Career move',
+    done: {}, mins: {}, extra: 0, drag: null, sheet: null, logMins: 25, sheetComplete: true, lastLog: { skill:'React', mins:25 },
+    streak: 12, counted: false, toast: null, skillFilter: 'active', curSkill: 'react', openStage: 2, plan: 'annual', range: 'week', reflect: null,
+    cName: 'Python', cCat: 'Development', cExp: 'Beginner', cTgt: 'Intermediate', cWeekly: 3,
+    cMs: ['Syntax & data types','Control flow','Functions & modules','Build a CLI tool'], toggles: { daily:true, streak:true, weekly:false }
+  };
+  phoneRef = React.createRef();
+  componentDidMount() { this.applyTheme(); }
+  componentDidUpdate() { this.applyTheme(); }
+  componentWillUnmount() { clearTimeout(this.tt); }
+  theme() { return this.state.theme ?? this.props.theme ?? 'light'; }
+  applyTheme() {
+    const el = document.querySelector('[data-phone]'); if (!el) return;
+    const dark = this.theme() === 'dark';
+    Object.entries(DARK).forEach(([k,v]) => dark ? el.style.setProperty(k,v) : el.style.removeProperty(k));
+  }
+  go = (screen) => this.setState(s => ({ screen, prev: s.screen, sheet: null, jump: null, toast: null }));
+  jump = (k) => {
+    const base = { jump: k, sheet: null, toast: null, drag: null };
+    if (k === 'log') return this.setState({ ...base, screen:'today', sheet:'t3', logMins:25, sheetComplete:true });
+    if (k === 'todayDone') { const done = {}; TASKS.forEach(t => done[t.id] = true); return this.setState({ ...base, screen:'today', done, streak:13, counted:true }); }
+    if (k === 'skillComplete') return this.setState({ ...base, screen:'skill', curSkill:'git' });
+    if (k === 'skill') return this.setState({ ...base, screen:'skill', curSkill:'react' });
+    if (k === 'today' || k === 'home') return this.setState({ ...base, screen:k, done:{}, mins:{}, extra:0, streak:12, counted:false });
+    this.setState({ ...base, screen:k });
+  };
+  complete(id, m, silent) {
+    const t = TASKS.find(x => x.id === id);
+    this.setState(s => {
+      const bump = !s.counted;
+      return { done: { ...s.done, [id]: true }, mins: { ...s.mins, [id]: m ?? t.mins }, streak: bump ? s.streak + 1 : s.streak, counted: true,
+        lastLog: { skill: t.skill, mins: m ?? t.mins }, undoOf: { id, bump },
+        toast: silent ? null : { title: `${t.title.split(' — ')[0]} · ${m ?? t.mins} min`, sub: bump ? `Streak: ${s.streak + 1} days` : `${t.skill} progress updated` } };
+    });
+    clearTimeout(this.tt); if (!silent) this.tt = setTimeout(() => this.setState({ toast: null }), 3200);
+  }
+  uncomplete(id) {
+    this.setState(s => { const done = { ...s.done }; delete done[id]; const anyLeft = Object.keys(done).length > 0 || s.extra > 0;
+      return { done, streak: anyLeft || !s.counted ? s.streak : s.streak - 1, counted: anyLeft ? s.counted : false }; });
+  }
+  renderVals() {
+    const st = this.state, dark = this.theme() === 'dark';
+    const s = {}; ['ob1','ob2','ob3','ob4','ob5','ob6','ob7','home','loading','error','today','sessionDone','skills','emptySkills','skill','roadmap','create','progress','achievements','profile','paywall'].forEach(k => s[k] = st.screen === k);
+    s.obStep = ['ob2','ob3','ob4','ob5','ob6'].includes(st.screen);
+    const obIdx = OB.indexOf(st.screen);
+    const chk = (on) => on ? I.check : '';
+    const pickStyle = (on) => ({ bg: on ? INK : 'transparent', fg: on ? BG : INK, bd: on ? INK : DIV });
+
+    const doneCount = TASKS.filter(t => st.done[t.id]).length;
+    const todayMins = TASKS.reduce((a,t) => a + (st.done[t.id] ? (st.mins[t.id] ?? t.mins) : 0), 0) + st.extra;
+    const allDone = doneCount === TASKS.length;
+    const focusT = TASKS.find(t => !st.done[t.id]);
+    const openSheet = (id, m) => this.setState({ sheet: id, logMins: m, sheetComplete: true, drag: null });
+
+    const tasks = TASKS.map(t => {
+      const d = !!st.done[t.id]; const drag = st.drag && st.drag.id === t.id ? st.drag : null;
+      const dx = drag ? Math.max(0, drag.dx) : 0;
+      return { ...t, check: chk(d), boxBg: d ? INK : 'transparent', boxBd: d ? INK : 'var(--color-neutral-500)', deco: d ? 'line-through' : 'none',
+        fg: d ? 'var(--color-neutral-600)' : INK, dx, tr: drag && drag.active ? 'none' : 'transform .25s ease',
+        swipeLabel: d ? 'Already done' : dx > 110 ? 'Release to complete' : 'Complete',
+        priBg: t.pri === 'High' ? 'var(--color-accent-100)' : 'var(--color-neutral-200)', priFg: t.pri === 'High' ? 'var(--color-accent-800)' : 'var(--color-neutral-800)',
+        toggle: (e) => { e && e.stopPropagation(); d ? this.uncomplete(t.id) : this.complete(t.id); },
+        down: (e) => this.setState({ drag: { id:t.id, x:e.clientX, dx:0, active:true } }),
+        move: (e) => { const g = this.state.drag; if (g && g.id === t.id && g.active) this.setState({ drag: { ...g, dx: e.clientX - g.x } }); },
+        up: () => { const g = this.state.drag; if (!g || g.id !== t.id) return; this.setState({ drag:null });
+          if (g.dx > 110 && !d) this.complete(t.id); else if (Math.abs(g.dx) < 6) openSheet(t.id, st.mins[t.id] ?? t.mins); },
+        leave: () => { const g = this.state.drag; if (g && g.id === t.id) { if (g.dx > 110 && !d) this.complete(t.id); this.setState({ drag:null }); } }
+      };
+    });
+
+    const weekBase = [50, 0, 45, 30, 60, 0, 0];
+    const wk = weekBase.slice(); wk[1] = todayMins;
+    const weekBars = ['M','T','W','T','F','S','S'].map((d,i) => ({ d, h: i > 1 ? '3%' : Math.max(4, wk[i] / 70 * 100) + '%', bg: i === 1 ? A : i > 1 ? 'var(--color-neutral-300)' : INK, lc: i === 1 ? INK : 'var(--color-neutral-700)' }));
+    const wkTotal = 250 + todayMins;
+    const dotsOn = [1,1,st.counted,0,0,0,0];
+    const weekDots = dotsOn.map((on,i) => ({ bg: on ? (i === 1 ? A : INK) : 'var(--color-neutral-300)' }));
+    const weekDotsLbl = ['M','T','W','T','F','S','S'].map((d,i) => ({ d, bg: i < 2 ? (i===1 ? BG : 'color-mix(in srgb, var(--color-bg) 70%, transparent)') : 'color-mix(in srgb, var(--color-bg) 22%, transparent)' }));
+
+    const sheetT = TASKS.find(t => t.id === st.sheet);
+    const sheet = sheetT ? { skill: sheetT.skill, title: sheetT.title, hasTask: !st.done[sheetT.id], boxBg: st.sheetComplete ? INK : 'transparent', boxBd: st.sheetComplete ? INK : 'var(--color-neutral-500)', check: chk(st.sheetComplete) }
+      : { skill:'Any skill', title:'Extra practice', hasTask:false };
+
+    const cur = SK.find(k => k.id === st.curSkill) || SK[0];
+    const nDone = cur.pct === 100 ? cur.ms.length : Math.round(cur.pct / 100 * cur.ms.length);
+    const sk = { ...cur, completed: cur.pct === 100, ringOff: (351.9 * (1 - cur.pct / 100)).toFixed(1), doneN: nDone, totalN: cur.ms.length,
+      resources: cur.res, activity: cur.act, ctaLabel: cur.pct === 100 ? 'Set a new target' : 'Log progress',
+      cta: cur.pct === 100 ? () => this.go('create') : () => { this.go('today'); setTimeout(() => openSheet(cur.id === 'react' ? 't3' : null, 25), 0); },
+      milestones: cur.ms.map((t, i) => { const d = i < nDone, c = i === nDone;
+        return { title: t, check: chk(d), nodeBg: d ? INK : c ? 'var(--color-accent-100)' : 'transparent', nodeBd: d ? INK : c ? A : 'var(--color-neutral-400)',
+          lineBg: i === cur.ms.length - 1 ? 'transparent' : d ? INK : 'var(--color-neutral-300)', fg: d || c ? INK : 'var(--color-neutral-700)',
+          subFg: c ? 'var(--color-accent-700)' : 'var(--color-neutral-700)', sub: d ? 'Completed' : c ? 'In progress · 3 of 5 tasks' : 'Upcoming' }; }) };
+
+    const counts = { active: SK.filter(k => k.status === 'active').length, completed: 1, planned: 2 };
+    const skillList = SK.filter(k => k.status === st.skillFilter).map(k => ({ ...k,
+      iconBg: k.status === 'completed' ? INK : 'var(--color-surface)', iconFg: k.status === 'completed' ? BG : INK,
+      levelLine: k.status === 'planned' ? k.since : k.status === 'completed' ? 'Advanced reached' : `${k.level} → ${k.target}`,
+      pctLabel: k.status === 'planned' ? '—' : k.pct + '%', w: k.pct + '%', barBg: k.status === 'completed' ? A : INK,
+      streakLabel: k.status === 'active' ? `${k.streak} d` : k.status === 'completed' ? '32 h' : 'Planned', streakFg: k.streak >= 7 ? 'var(--color-accent-700)' : 'var(--color-neutral-700)',
+      nextLine: k.status === 'completed' ? 'Completed 14 Aug' : k.status === 'planned' ? k.next : `Next: ${k.next}`,
+      open: () => this.setState({ screen:'skill', curSkill:k.id, jump:null }) }));
+
+    const stages = ROAD.map((g, i) => { const done = i < 2, cur = i === 2, open = st.openStage === i;
+      return { n: '0' + (i+1), name: g.name, short: g.short, open, fg: i > 2 ? 'var(--color-neutral-700)' : INK,
+        bar: done ? INK : cur ? A : 'var(--color-neutral-300)', lc: cur ? 'var(--color-accent-700)' : done ? INK : 'var(--color-neutral-700)',
+        status: done ? 'Done' : cur ? 'Current' : 'Next', tagBg: cur ? 'var(--color-accent-100)' : 'var(--color-neutral-200)', tagFg: cur ? 'var(--color-accent-800)' : 'var(--color-neutral-800)',
+        meta: done ? `${g.tasks.length} of ${g.tasks.length} milestones` : cur ? '3 of 5 milestones · ~3 weeks left' : `${g.tasks.length} milestones`,
+        toggle: () => this.setState({ openStage: open ? -1 : i }),
+        tasks: g.tasks.map((t, j) => { const d = done || (cur && j < 3); return { t, check: chk(d), bg: d ? INK : 'transparent', bd: d ? INK : cur && j === 3 ? A : 'var(--color-neutral-400)', fg: d ? 'var(--color-neutral-700)' : INK, deco: d ? 'line-through' : 'none' }; }) }; });
+
+    const R = st.range === 'week'
+      ? { label:'Learning time · this week', total: `${Math.floor(wkTotal/60)}h ${wkTotal%60}m`, delta:'+18% vs last week', gap:'8px', ticks:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], bars: wk.map((v,i) => ({ h: i > 1 ? '3%' : Math.max(3, v/70*100)+'%', bg: i === 1 ? A : i > 1 ? 'var(--color-neutral-300)' : INK })) }
+      : { label:'Learning time · September', total:'24h 15m', delta:'+6% vs August', gap:'3px', ticks:['1 Sep','8','15','22','29'], bars: Array.from({length:29}, (_,i) => { const v = [40,25,0,55,30,45,0,60,35,20,50,0,40,65,30,0,45,50,25,35,0,70,40,55,30,0,50,45,0][i]; const v2 = i === 28 ? todayMins : v; return { h: Math.max(3, v2/70*100)+'%', bg: i === 28 ? A : INK }; }) };
+    const statsRaw = [['Current streak', st.streak, ' days'],['Longest streak',21,' days'],['Milestones',st.range==='week'?3:9,st.range==='week'?' this week':' this month'],['Completion rate',86,'%'],['Skills improved',4,' of 6'],['Avg session',24,' min']];
+    const stats = statsRaw.map(([l,v,u],i) => ({ l, v, u, pl: i % 2 ? '14px' : '0', bl: i % 2 ? '1px solid var(--color-divider)' : 'none' }));
+    const bySkill = [['Spanish','5h 10m','B1 → B1+',100],['React','4h 45m','Milestone 4',92],['UI/UX Design','3h 20m','+1 level',64],['TypeScript','2h 30m','Milestone 3',48]].map(([name,v,lvl,w]) => ({ name, v, lvl, w: w + '%' }));
+    const HC = ['var(--color-neutral-200)','var(--color-accent-200)','var(--color-accent-400)','var(--color-accent)','var(--color-accent-700)'];
+    const heat = Array.from({length:126}, (_,i) => { if (i === 121) return { bg: st.counted ? HC[3] : HC[0] }; if (i > 121) return { bg:'transparent' }; const r = (Math.sin(i * 12.9898) * 43758.5453) % 1; const x = Math.abs(r); const lv = i % 7 === 6 && x < 0.6 ? 0 : x < 0.18 ? 0 : x < 0.4 ? 1 : x < 0.68 ? 2 : x < 0.9 ? 3 : 4; return { bg: HC[i > 90 ? Math.max(lv,1) : lv] }; });
+
+    const ach = [['01','First milestone','Earned 9 Jun',1],['7','7-day streak','Earned 22 Sep',1],['30','30-day streak',`${st.streak} of 30 days`,st.streak/30],['10h','10 hours learned','Earned 21 Jun',1],['✓','Skill completed','Git & GitHub · 14 Aug',1],['5+','Five skills tracked','Earned 1 Sep',1],['100h','100 hours learned','Earned 12 Sep',1],['250h','250 hours learned','178 of 250 h',0.71],['50','50 milestones','41 of 50',0.82],['3×','Three skills completed','1 of 3',0.33]];
+    const achievements = ach.map(([mark,name,meta,p]) => { const locked = p < 1; return { mark, name, meta, locked, w: Math.round(p*100)+'%', bg: locked ? 'transparent' : INK, bd: locked ? 'var(--color-neutral-400)' : INK, fg: locked ? 'var(--color-neutral-600)' : BG, tfg: locked ? 'var(--color-neutral-800)' : INK }; });
+
+    const tg = (k) => ({ isToggle:true, trackBg: st.toggles[k] ? A : 'var(--color-neutral-400)', justify: st.toggles[k] ? 'flex-end' : 'flex-start', toggle: (e) => { e.stopPropagation(); this.setState(x => ({ toggles: { ...x.toggles, [k]: !x.toggles[k] } })); } });
+    const val = (value, go) => ({ isValue:true, value, go });
+    const settings = [
+      { name:'Learning', rows:[{label:'Daily goal',...val('45 min')},{label:'Learning days',...val('Mon–Fri')},{label:'Goal',...val('Lead frontend')},{label:'Experience levels',...val('3 skills')}] },
+      { name:'Notifications', rows:[{label:'Daily reminder · 7:30 AM',...tg('daily')},{label:'Streak at risk',...tg('streak')},{label:'Weekly summary',...tg('weekly')},{label:'Smart reminders',pro:true,...val('',()=>this.go('paywall'))}] },
+      { name:'Appearance', rows:[{label:'Theme',isTheme:true}] },
+      { name:'Account', rows:[{label:'Subscription',...val('Free',()=>this.go('paywall'))},{label:'Achievements',...val('6 of 10',()=>this.go('achievements'))},{label:'Export data',...val('CSV, JSON')},{label:'Sign out',fg:'var(--color-accent-700)'}] }
+    ].map(g => ({ ...g, rows: g.rows.map(r => ({ fg: INK, go: () => {}, ...r })) }));
+    const themeOpts = ['Light','Dark','System'].map(l => { const on = (l === 'Dark') === dark && l !== 'System'; return { label:l, bg: on ? INK : 'transparent', fg: on ? BG : INK, pick: () => this.setState({ theme: l === 'Dark' ? 'dark' : 'light' }) }; });
+
+    const interestNames = ['React','TypeScript','UI/UX Design','Python','Spanish','Public Speaking','Photography','Japanese','Data analysis','Guitar','Writing','Figma'];
+    const selInterests = interestNames.filter(k => st.interests[k]);
+
+    return {
+      i: I, s, streak: st.streak, streakColor: st.counted ? 'var(--color-accent-700)' : INK,
+      screenLabel: LABELS[st.jump] || LABELS[st.screen] || st.screen,
+      themeBtn: { lightBg: dark ? 'transparent' : INK, lightFg: dark ? INK : BG, darkBg: dark ? INK : 'transparent', darkFg: dark ? BG : INK },
+      setLight: () => this.setState({ theme:'light' }), setDark: () => this.setState({ theme:'dark' }),
+      groups: SCREENS.map(g => ({ name: g.name, items: g.items.map(([k,label]) => { const on = (st.jump || st.screen) === k && (st.jump ? true : !st.sheet); return { label, n: LABELS[k].slice(0,2), bg: on ? INK : 'transparent', fg: on ? BG : INK, go: () => this.jump(k) }; }) })),
+      // onboarding
+      welcomeGrid: Array.from({length:14}, (_,i) => ({ bg: i === 11 ? A : i < 10 ? INK : 'var(--color-neutral-300)' })),
+      obNext: () => this.go(OB[Math.min(obIdx + 1, 6)]), obBack: () => this.go(OB[Math.max(obIdx - 1, 0)]),
+      obSeg: [1,2,3,4,5].map(k => ({ bg: k <= obIdx ? A : 'var(--color-neutral-300)' })), obStepLabel: `${obIdx}/5`,
+      interests: interestNames.map(label => { const on = !!st.interests[label]; return { label, ...pickStyle(on), toggle: () => this.setState(x => ({ interests: { ...x.interests, [label]: !x.interests[label] } })) }; }),
+      goals: [['Build a real project','Ship something you can show'],['Get job-ready','Interview-level depth'],['Pass an exam or certificate','DELE B2, AWS, and similar'],['Hold a conversation','For languages'],['Learn for myself','No deadline']].map(([label,sub]) => { const on = !!st.goals[label]; return { label, sub, check: chk(on), bg: on ? INK : 'transparent', bd: on ? INK : 'var(--color-neutral-500)', toggle: () => this.setState(x => ({ goals: { ...x.goals, [label]: !x.goals[label] } })) }; }),
+      weekly: [['1–2 h','Light','~20 min a day'],['3–5 h','Steady','~45 min a day'],['6–10 h','Serious','~1.5 h a day'],['10+ h','Intensive','2 h+ a day']].map(([label,tag,sub]) => { const on = st.weekly === label; return { label, tag, sub, bd: on ? A : DIV, bg: on ? 'var(--color-accent-100)' : 'transparent', pick: () => this.setState({ weekly: label }) }; }),
+      days: ['M','T','W','Th','F','Sa','Su'].map(k => ({ label: k, ...pickStyle(!!st.days[k]), toggle: () => this.setState(x => ({ days: { ...x.days, [k]: !x.days[k] } })) })),
+      dailyHint: `About ${Math.round(({'1–2 h':90,'3–5 h':240,'6–10 h':480,'10+ h':660})[st.weekly] / Math.max(1, Object.values(st.days).filter(Boolean).length))} min on each of ${Object.values(st.days).filter(Boolean).length} days.`,
+      levels: (selInterests.length ? selInterests : ['React']).slice(0,3).map(skill => ({ skill, opts: ['New','Some','Solid'].map(label => { const on = (st.levels[skill] || 'New') === label; return { label, bg: on ? INK : 'transparent', fg: on ? BG : INK, pick: () => this.setState(x => ({ levels: { ...x.levels, [skill]: label } })) }; }) })),
+      motives: ['Career move','Current job','A side project','Exam','Curiosity','Staying sharp'].map(label => ({ label, ...pickStyle(st.motive === label), pick: () => this.setState({ motive: label }) })),
+      obSummary: { skills: Math.min(3, selInterests.length) || 1, hours: st.weekly.replace(' h','h'), daily: ({'1–2 h':20,'3–5 h':45,'6–10 h':90,'10+ h':120})[st.weekly] },
+      obSkillList: (selInterests.length ? selInterests : ['React']).slice(0,3).map(name => { const k = SK.find(x => x.name === name); return { name, mono: k ? k.mono : name.slice(0,2), first: k ? `First milestone: ${k.ms[0]}` : 'Roadmap drafted' }; }),
+      // home / today
+      tasks, doneCount, todayMins, planMins: 70, allDone, notAllDone: !allDone, hasFocus: !!focusT,
+      focus: focusT ? { skill: focusT.skill, title: focusT.title, mins: focusT.mins, context: focusT.ctx, start: () => { this.setState({ screen:'today', jump:null }); openSheet(focusT.id, focusT.mins); }, done: () => this.complete(focusT.id) } : {},
+      goalW: Math.min(100, todayMins / 45 * 100) + '%', weekBars, weekTotal: `${Math.floor(wkTotal/60)}h ${wkTotal%60}m`, weekDots, weekDotsLbl,
+      taskSegs: TASKS.map(t => ({ bg: st.done[t.id] ? A : 'var(--color-neutral-300)' })),
+      continueCards: SK.filter(k => ['react','es','ts'].includes(k.id)).map(k => ({ ...k, w: k.pct + '%', open: () => this.setState({ screen:'skill', curSkill:k.id, jump:null }) })),
+      quickLog: [15,30,45,60].map(m => ({ m, open: () => this.setState({ sheet:'free', logMins:m }) })),
+      reflect: ['Hard','Steady','It clicked'].map(label => ({ label, ...pickStyle(st.reflect === label), pick: () => this.setState({ reflect: label }) })),
+      stop: (e) => e.stopPropagation(),
+      hasToast: !!st.toast && !st.sheet, toast: st.toast || {},
+      undo: () => { const u = st.undoOf; if (!u) return; this.setState(x => { const done = { ...x.done }; delete done[u.id]; return { done, toast:null, streak: u.bump ? x.streak - 1 : x.streak, counted: u.bump ? false : x.counted }; }); },
+      // sheet
+      hasSheet: !!st.sheet, sheet, logMins: st.logMins,
+      minChips: [10,15,25,45,60].map(m => ({ m: m + 'm', ...pickStyle(st.logMins === m), bd: st.logMins === m ? INK : DIV, pick: () => this.setState({ logMins: m }) })),
+      minDown: () => this.setState(x => ({ logMins: Math.max(5, x.logMins - 5) })), minUp: () => this.setState(x => ({ logMins: x.logMins + 5 })),
+      toggleSheetComplete: () => this.setState(x => ({ sheetComplete: !x.sheetComplete })),
+      closeSheet: () => this.setState({ sheet: null }),
+      saveLog: () => {
+        const id = st.sheet, m = st.logMins;
+        if (id && id !== 'free' && st.sheetComplete && !st.done[id]) { this.complete(id, m, true); }
+        else { this.setState(x => ({ extra: x.extra + m, streak: x.counted ? x.streak : x.streak + 1, counted: true, lastLog: { skill: sheetT ? sheetT.skill : 'Extra practice', mins: m } })); }
+        this.setState({ sheet: null, screen: 'sessionDone', jump: null, toast: null });
+      },
+      lastLog: st.lastLog,
+      // skills
+      filters: [['active','Active'],['completed','Completed'],['planned','Planned']].map(([k,label]) => ({ label, n: counts[k], bg: st.skillFilter === k ? INK : 'transparent', fg: st.skillFilter === k ? BG : INK, pick: () => this.setState({ skillFilter: k }) })),
+      skillList, sk, stages,
+      templates: [['Frontend fundamentals','12 milestones · 8 weeks',false],['Conversational Spanish','10 milestones · 12 weeks',false],['Public speaking basics','8 milestones · 6 weeks',false],['Product design career path','24 milestones · 6 months',true]].map(([name,meta,pro]) => ({ name, meta, pro, go: () => this.go(pro ? 'paywall' : 'create') })),
+      // create
+      cName: st.cName, setName: (e) => this.setState({ cName: e.target.value }), cWeekly: st.cWeekly,
+      wkDown: () => this.setState(x => ({ cWeekly: Math.max(1, x.cWeekly - 1) })), wkUp: () => this.setState(x => ({ cWeekly: Math.min(20, x.cWeekly + 1) })),
+      cats: ['Development','Design','Language','Career','Creative','+ Custom'].map(label => { const pro = label === '+ Custom'; return { label, pro, ...pickStyle(st.cCat === label), pick: () => pro ? this.go('paywall') : this.setState({ cCat: label }) }; }),
+      expOpts: ['None','Beginner','Some','Solid'].map(label => ({ label, bg: st.cExp === label ? INK : 'transparent', fg: st.cExp === label ? BG : INK, pick: () => this.setState({ cExp: label }) })),
+      tgtOpts: ['Basics','Intermediate','Advanced','Mastery'].map(label => ({ label, bg: st.cTgt === label ? INK : 'transparent', fg: st.cTgt === label ? BG : INK, pick: () => this.setState({ cTgt: label }) })),
+      cMilestones: st.cMs.map((t, j) => ({ t, n: String(j+1).padStart(2,'0'), remove: () => this.setState(x => ({ cMs: x.cMs.filter((_,k) => k !== j) })) })),
+      cMsCount: `${st.cMs.length} added`,
+      addMs: () => this.setState(x => ({ cMs: [...x.cMs, ['Error handling','Testing with pytest','Package a project'][x.cMs.length % 3]] })),
+      createSkill: () => { this.setState({ screen:'skills', skillFilter:'active', jump:null, toast:{ title:`${st.cName} added`, sub:`${st.cMs.length} milestones · ${st.cWeekly} h a week` } }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast:null }), 3200); },
+      // progress
+      ranges: [['week','Week'],['month','Month']].map(([k,label]) => ({ label, bg: st.range === k ? INK : 'transparent', fg: st.range === k ? BG : INK, pick: () => this.setState({ range: k }) })),
+      rng: R, stats, bySkill, heat, achievements, settings, themeOpts,
+      // paywall
+      proFeatures: [['AI roadmaps','Five stages, sized to your time and target date'],['AI milestone generation','Break any goal into next steps'],['Unlimited skills','Plus custom categories'],['Advanced statistics','Retention, best times, trends'],['Detailed insights','Where you’re slipping, and why'],['Premium templates','40+ curated learning paths'],['Smart reminders','Nudges when you usually learn']].map(([t,d]) => ({ t, d })),
+      plans: [['annual','Yearly','$59.99','$5.00 / mo · save 37%'],['monthly','Monthly','$7.99','Billed monthly']].map(([k,name,price,sub]) => { const on = st.plan === k; return { name, price, sub, bd: on ? A : DIV, bg: on ? 'var(--color-accent-100)' : 'transparent', subFg: on && k === 'annual' ? 'var(--color-accent-700)' : 'var(--color-neutral-700)', pick: () => this.setState({ plan: k }) }; }),
+      planNote: st.plan === 'annual' ? 'Free for 7 days, then $59.99 a year. Cancel anytime in Settings.' : 'Free for 7 days, then $7.99 a month. Cancel anytime in Settings.',
+      // nav
+      showTabs: !!TAB_OF[st.screen],
+      tabs: TABS.map(([k,label,ic]) => { const on = TAB_OF[st.screen] === k; return { label, d: I[ic], fg: on ? INK : 'var(--color-neutral-600)', fw: on ? 800 : 500, bar: on ? A : 'transparent', go: () => this.go(k === 'skills' && st.jump === 'emptySkills' ? 'emptySkills' : k) }; }),
+      goHome: () => this.go('home'), goToday: () => this.go('today'), goSkills: () => this.go('skills'), goSkill: () => this.go('skill'), goRoadmap: () => this.go('roadmap'),
+      goCreate: () => this.go('create'), goPaywall: () => this.go('paywall'), goProgress: () => this.go('progress'), goAchievements: () => this.go('achievements'),
+      goBack: () => this.go(st.prev && st.prev !== 'paywall' ? st.prev : 'home')
+    };
+  }
+}
+</script>
+</body>
+</html>
