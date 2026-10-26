@@ -23,7 +23,7 @@ function Svg({ d, size = 18, sw = 2, stroke = "currentColor", style }: any) {
 const fieldReset =
   "!rounded-none !shadow-none focus-visible:!ring-0 focus-visible:!border-[var(--color-accent)] placeholder:!text-[var(--color-neutral-700)]";
 
-export default function SkillTracker() {
+export default function SkillTracker({ mode = "app" }: { mode?: "app" | "showcase" }) {
   const [st, setSt] = useState<any>(initialState);
   const ttRef = useRef<any>(null);
 
@@ -91,7 +91,7 @@ export default function SkillTracker() {
       fg: d ? "var(--color-neutral-600)" : INK, dx, tr: drag && drag.active ? "none" : "transform .25s ease",
       swipeLabel: d ? "Already done" : dx > 110 ? "Release to complete" : "Complete",
       priBg: t.pri === "High" ? "var(--color-accent-100)" : "var(--color-neutral-200)", priFg: t.pri === "High" ? "var(--color-accent-800)" : "var(--color-neutral-800)",
-      toggle: (e: any) => { e && e.stopPropagation(); d ? uncomplete(t.id) : complete(t.id); },
+      toggle: (e: any) => { if (e) e.stopPropagation(); if (d) uncomplete(t.id); else complete(t.id); },
       down: (e: any) => setState({ drag: { id: t.id, x: e.clientX, dx: 0, active: true } }),
       move: (e: any) => { const g = st.drag; if (g && g.id === t.id && g.active) setState({ drag: { ...g, dx: e.clientX - g.x } }); },
       up: () => { const g = st.drag; if (!g || g.id !== t.id) return; setState({ drag: null }); if (g.dx > 110 && !d) complete(t.id); else if (Math.abs(g.dx) < 6) openSheet(t.id, st.mins[t.id] ?? t.mins); },
@@ -237,36 +237,34 @@ export default function SkillTracker() {
 
   const i = v.i;
 
-  return (
-    <div className="modernist" style={css("min-height:100vh;display:flex;flex-wrap:wrap;gap:48px;padding:40px;align-items:flex-start;justify-content:center")}>
-
-      {/* ───── SIDEBAR ───── */}
-      <aside style={css("width:280px;flex:none;display:flex;flex-direction:column;gap:24px")}>
-        <div style={css("display:flex;flex-direction:column;gap:6px")}>
-          <div style={css("font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)")}>Prototype · Sep 2026</div>
-          <div style={css("font-family:var(--font-heading);font-weight:800;font-size:34px;letter-spacing:-0.02em;line-height:1")}>Skill Tracker</div>
-          <div style={css("font-size:14px;line-height:1.5;color:var(--color-neutral-800);text-wrap:pretty")}>Everything is clickable. On Today, swipe a task right to complete it, or tap it to log time.</div>
+  // Sidebar with the clickable screen list — only used in "showcase" mode.
+  const sidebar = (
+    <aside style={css("width:280px;flex:none;display:flex;flex-direction:column;gap:24px")}>
+      <div style={css("display:flex;flex-direction:column;gap:6px")}>
+        <div style={css("font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)")}>Prototype · Sep 2026</div>
+        <div style={css("font-family:var(--font-heading);font-weight:800;font-size:34px;letter-spacing:-0.02em;line-height:1")}>Skill Tracker</div>
+        <div style={css("font-size:14px;line-height:1.5;color:var(--color-neutral-800);text-wrap:pretty")}>Everything is clickable. On Today, swipe a task right to complete it, or tap it to log time.</div>
+      </div>
+      <div style={css("display:flex;border:1px solid var(--color-divider)")}>
+        <button onClick={v.setLight} style={css(`flex:1;height:36px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:left;padding:0 12px;background:${v.themeBtn.lightBg};color:${v.themeBtn.lightFg}`)}>Light</button>
+        <button onClick={v.setDark} style={css(`flex:1;height:36px;border:none;border-left:1px solid var(--color-divider);cursor:pointer;font-size:13px;font-weight:600;text-align:left;padding:0 12px;background:${v.themeBtn.darkBg};color:${v.themeBtn.darkFg}`)}>Dark</button>
+      </div>
+      {v.groups.map((g: any, gi: number) => (
+        <div key={gi} style={css("display:flex;flex-direction:column")}>
+          <div style={css("font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:6px;border-bottom:2px solid var(--color-divider)")}>{g.name}</div>
+          {g.items.map((it: any, ii: number) => (
+            <button key={ii} onClick={it.go} className="hov-n200" style={css(`display:flex;gap:10px;align-items:baseline;text-align:left;border:none;border-bottom:1px solid var(--color-neutral-400);background:${it.bg};color:${it.fg};padding:7px 8px;font-size:13px;cursor:pointer`)}>
+              <span style={css("font-size:11px;opacity:0.7;width:18px;flex:none")}>{it.n}</span><span>{it.label}</span>
+            </button>
+          ))}
         </div>
-        <div style={css("display:flex;border:1px solid var(--color-divider)")}>
-          <button onClick={v.setLight} style={css(`flex:1;height:36px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:left;padding:0 12px;background:${v.themeBtn.lightBg};color:${v.themeBtn.lightFg}`)}>Light</button>
-          <button onClick={v.setDark} style={css(`flex:1;height:36px;border:none;border-left:1px solid var(--color-divider);cursor:pointer;font-size:13px;font-weight:600;text-align:left;padding:0 12px;background:${v.themeBtn.darkBg};color:${v.themeBtn.darkFg}`)}>Dark</button>
-        </div>
-        {v.groups.map((g: any, gi: number) => (
-          <div key={gi} style={css("display:flex;flex-direction:column")}>
-            <div style={css("font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:6px;border-bottom:2px solid var(--color-divider)")}>{g.name}</div>
-            {g.items.map((it: any, ii: number) => (
-              <button key={ii} onClick={it.go} className="hov-n200" style={css(`display:flex;gap:10px;align-items:baseline;text-align:left;border:none;border-bottom:1px solid var(--color-neutral-400);background:${it.bg};color:${it.fg};padding:7px 8px;font-size:13px;cursor:pointer`)}>
-                <span style={css("font-size:11px;opacity:0.7;width:18px;flex:none")}>{it.n}</span><span>{it.label}</span>
-              </button>
-            ))}
-          </div>
-        ))}
-      </aside>
+      ))}
+    </aside>
+  );
 
-      {/* ───── PHONE ───── */}
-      <div style={css("width:410px;height:864px;flex:none;border-radius:54px;background:#0e0e0f;padding:10px;box-shadow:var(--shadow-lg)")}>
-        <div data-phone="1" data-screen-label={v.screenLabel} className={dark ? "phone-dark" : undefined} style={css("width:390px;height:844px;border-radius:44px;overflow:hidden;position:relative;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)")}>
-
+  // The actual app surface (every screen + overlays). Shared by both modes.
+  const screens = (
+    <>
           {/* status bar */}
           <div style={css("position:absolute;top:0;left:0;right:0;height:48px;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:0 32px 0 36px;font-size:15px;font-weight:600;pointer-events:none")}>
             <span>9:41</span>
@@ -780,7 +778,28 @@ export default function SkillTracker() {
           )}
 
           <div style={css("position:absolute;bottom:8px;left:50%;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--color-text);z-index:11;opacity:0.9")}></div>
+    </>
+  );
+
+  // SHOWCASE: sidebar screen-list + a phone mockup frame.
+  if (mode === "showcase") {
+    return (
+      <div className="modernist" style={css("min-height:100vh;display:flex;flex-wrap:wrap;gap:48px;padding:40px;align-items:flex-start;justify-content:center")}>
+        {sidebar}
+        <div style={css("width:410px;height:864px;flex:none;border-radius:54px;background:#0e0e0f;padding:10px;box-shadow:var(--shadow-lg)")}>
+          <div data-phone="1" data-screen-label={v.screenLabel} className={dark ? "phone-dark" : undefined} style={css("width:390px;height:844px;border-radius:44px;overflow:hidden;position:relative;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)")}>
+            {screens}
+          </div>
         </div>
+      </div>
+    );
+  }
+
+  // APP: full-bleed, phone-sized column centred on larger screens. Installable PWA.
+  return (
+    <div className="modernist" style={css("width:100%;min-height:100dvh;display:flex;justify-content:center;background:var(--color-neutral-300)")}>
+      <div data-phone="1" className={dark ? "phone-dark" : undefined} style={css("position:relative;flex:none;width:min(100vw,430px);height:100dvh;overflow:hidden;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)")}>
+        {screens}
       </div>
     </div>
   );
