@@ -1,6 +1,6 @@
-import SkillTracker from "@/components/skill-tracker/SkillTracker";
+import AppRoute from "@/components/AppRoute";
 
-// Root: the app only — full-screen, app-like, installable as a PWA.
+// Root: the app only — auth-guarded, full-screen, installable as a PWA.
 export default function Home() {
-  return <SkillTracker mode="app" />;
+  return <AppRoute />;
 }

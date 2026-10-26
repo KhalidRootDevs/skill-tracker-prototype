@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { css } from "@/lib/css";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { initials } from "@/lib/auth";
 import {
   I, TASKS, SK, ROAD, SCREENS, LABELS, TABS, TAB_OF, OB,
   A, INK, BG, DIV, initialState,
@@ -23,7 +24,17 @@ function Svg({ d, size = 18, sw = 2, stroke = "currentColor", style }: any) {
 const fieldReset =
   "!rounded-none !shadow-none focus-visible:!ring-0 focus-visible:!border-[var(--color-accent)] placeholder:!text-[var(--color-neutral-700)]";
 
-export default function SkillTracker({ mode = "app" }: { mode?: "app" | "showcase" }) {
+export default function SkillTracker({
+  mode = "app",
+  onSignOut,
+  onOpenAccount,
+  user,
+}: {
+  mode?: "app" | "showcase";
+  onSignOut?: () => void;
+  onOpenAccount?: () => void;
+  user?: { name: string; email: string };
+}) {
   const [st, setSt] = useState<any>(initialState);
   const ttRef = useRef<any>(null);
 
@@ -164,7 +175,7 @@ export default function SkillTracker({ mode = "app" }: { mode?: "app" | "showcas
     { name: "Learning", rows: [{ label: "Daily goal", ...val("45 min") }, { label: "Learning days", ...val("Mon–Fri") }, { label: "Goal", ...val("Lead frontend") }, { label: "Experience levels", ...val("3 skills") }] },
     { name: "Notifications", rows: [{ label: "Daily reminder · 7:30 AM", ...tg("daily") }, { label: "Streak at risk", ...tg("streak") }, { label: "Weekly summary", ...tg("weekly") }, { label: "Smart reminders", pro: true, ...val("", () => go("paywall")) }] },
     { name: "Appearance", rows: [{ label: "Theme", isTheme: true }] },
-    { name: "Account", rows: [{ label: "Subscription", ...val("Free", () => go("paywall")) }, { label: "Achievements", ...val("6 of 10", () => go("achievements")) }, { label: "Export data", ...val("CSV, JSON") }, { label: "Sign out", fg: "var(--color-accent-700)" }] },
+    { name: "Account", rows: [{ label: "Subscription", ...val("Free", () => go("paywall")) }, { label: "Achievements", ...val("6 of 10", () => go("achievements")) }, { label: "Export data", ...val("CSV, JSON") }, { label: "Sign out", fg: "var(--color-accent-700)", go: onSignOut }] },
   ].map((g) => ({ ...g, rows: g.rows.map((r: any) => ({ fg: INK, go: () => {}, ...r })) }));
   const themeOpts = ["Light", "Dark", "System"].map((l) => { const on = (l === "Dark") === dark && l !== "System"; return { label: l, bg: on ? INK : "transparent", fg: on ? BG : INK, pick: () => setState({ theme: l === "Dark" ? "dark" : "light" }) }; });
 
@@ -236,6 +247,8 @@ export default function SkillTracker({ mode = "app" }: { mode?: "app" | "showcas
   };
 
   const i = v.i;
+  const profileName = user?.name || "Maya Chen";
+  const profileInitials = user ? initials(user.name) : "MC";
 
   // Sidebar with the clickable screen list — only used in "showcase" mode.
   const sidebar = (
@@ -259,6 +272,14 @@ export default function SkillTracker({ mode = "app" }: { mode?: "app" | "showcas
           ))}
         </div>
       ))}
+      <div style={css("display:flex;flex-direction:column")}>
+        <div style={css("font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:6px;border-bottom:2px solid var(--color-divider)")}>Auth (routes)</div>
+        {([["/login", "Login"], ["/register", "Register"], ["/forgot", "Forgot password"], ["/account", "My profile"]] as [string, string][]).map(([href, label]) => (
+          <a key={href} href={href} className="hov-n200" style={css("display:flex;gap:10px;align-items:baseline;text-align:left;border:none;border-bottom:1px solid var(--color-neutral-400);background:transparent;color:var(--color-text);padding:7px 8px;font-size:13px;text-decoration:none")}>
+            <span style={css("font-size:11px;opacity:0.7;width:18px;flex:none")}>↗</span><span>{label}</span>
+          </a>
+        ))}
+      </div>
     </aside>
   );
 
@@ -713,7 +734,7 @@ export default function SkillTracker({ mode = "app" }: { mode?: "app" | "showcas
           {/* PROFILE */}
           {v.s.profile && (
             <div className="no-scrollbar" style={css("position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 20px 108px;display:flex;flex-direction:column;gap:22px")}>
-              <div style={css("display:flex;align-items:center;gap:14px")}><div style={css("width:64px;height:64px;background:var(--color-accent-100);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:22px")}>MC</div><div style={css("display:flex;flex-direction:column;gap:2px")}><span style={css("font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1")}>Maya Chen</span><span style={css("font-size:13px;color:var(--color-neutral-700)")}>Learning since June 2026 · Free plan</span></div></div>
+              <div onClick={onOpenAccount} style={css(`display:flex;align-items:center;gap:14px;${onOpenAccount ? "cursor:pointer" : ""}`)}><div style={css("width:64px;height:64px;flex:none;background:var(--color-accent-100);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:22px")}>{profileInitials}</div><div style={css("flex:1;display:flex;flex-direction:column;gap:2px;min-width:0")}><span style={css("font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1")}>{profileName}</span><span style={css("font-size:13px;color:var(--color-neutral-700)")}>Learning since June 2026 · Free plan</span></div>{onOpenAccount && (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={css("flex:none")}><path d={i.chevR}></path></svg>)}</div>
               <button onClick={v.goPaywall} style={css("display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--color-text);color:var(--color-bg);border:none;text-align:left;cursor:pointer")}><span style={css("display:flex;flex-direction:column;gap:3px")}><span style={css("font-family:var(--font-heading);font-weight:800;font-size:17px")}>Try Pro free for 7 days</span><span style={css("font-size:13px;opacity:0.75")}>AI roadmaps, unlimited skills, insights.</span></span><Svg d={i.arrow} size={20} sw={2.2} /></button>
               {v.settings.map((g: any, gi: number) => (
                 <div key={gi} style={css("display:flex;flex-direction:column")}>
